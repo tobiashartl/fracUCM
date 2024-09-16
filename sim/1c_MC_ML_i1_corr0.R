@@ -15,34 +15,56 @@ source("./help functions/KF.R")
 
 # Settings
 n <- c(100, 200, 300)
-d <- c(0.75, 1, 1.25, 1.75)
-r <- c(1, 5, 10)
+d <- c(0.75, 1, 1.75)
+ratio <- c(1, 10, 30, 0, 0.1)
 R <- 1000
 
 # Strong persistence
 ar <- c(-1.6, 0.8)
-# Weaker persistemce
-#ar <- c(-0.9, 0.4)
-# define grid
-r.grid <- log(c(1, 5, 10))
-ar.1.grid <- -c(-1.8, -1.7, -1.6, -1.5, -1.4)
-ar2.grid  <- -c(0.6, 0.7, 0.8, 0.9, 1)
-
-gr.start <- expand.grid(r.grid, ar.1.grid, ar2.grid) %>% as.matrix()
-gr.start <- gr.start[sapply(1:nrow(gr.start), function(i) toComp(c(gr.start[i, 2:3]))$stable) ,]
 
 
-setups <- expand.grid(n, d, r)
-colnames(setups) <- c("n", "d", "r")
+# Long-run variance part
+cvar <- function(ar){
+    p <- length(ar)
+    A <- toComp(-ar)$CompMat
+    return(matrix(solve(diag(p^2)-(A%x%A))%*%c(1,rep(0,p^2-1)),p,p)[1,1])
+}
+xvar <- function(n, d){
+    pisq <- frac_diff(c(1, rep(0, n-1)), -d)^2
+    var  <- cumsum(pisq)
+    return(mean(var))
+}
+
+
+setups <- expand.grid(n, d, ratio)
+# calculate variance ratio for grid
+
+
+colnames(setups) <- c("n", "d", "ratio")
 setups <- setups[order(setups[, "n"]), ]
+
+# calculate the true nu:
+nucalc <- function(n, d, ratio, ar){
+    if(ratio == 0) return(1)
+    var_x <- xvar(n, d)
+    var_c <- cvar(ar)
+    nu    <- var_x/var_c * (1 / ratio)
+    return(nu)
+}
+
+# get nu
+nuc <- sapply(1:nrow(setups), function(x) nucalc(setups[x, 1], setups[x, 2], setups[x, 3], ar))
+
 
 for ( i in 1:NROW(setups)){
     setup <- setups[ i, ]
     n <- as.numeric(setup[1])
-    nu <- as.numeric(setup[3])
     d <- as.numeric(setup[2])
+    nu <- nucalc(n, d, setups[i, 3], ar)
+    r <- setups[i, 3]
+    cat("Iteration ", i, "\n")
     
-    #if(file.exists(file = paste("./MC/MC_2/Integer/Sim_R", R, "_n", n, "_d", d, "_nu", nu, "_ar_high_ML.RData", sep=""))) next
+    if(file.exists(file = paste("./MC/Integer/ML/Sim_R", R, "_n", n, "_d", d, "_r", r, "_corr0.RData", sep=""))) next
     set.seed(42)
     
     # Generate the data
@@ -51,25 +73,37 @@ for ( i in 1:NROW(setups)){
     c <- apply(u, 2, function(x) stats::filter(c(rep(0, length(ar)), x), filter = c(-ar), method = "recursive", sides = 1)[-(1:length(ar))])
     y <- x + c
     
+    # grid of starting values
+    nu_grid <- c(0.01, 1, 100, 1000) %>% log()
+    ar.1.grid <- c(-1.8,  -1.6, -1.4)
+    ar2.grid  <- c(0.6,  0.8,  1)
+    
+    
+    gr.start <- expand.grid(nu_grid, -ar.1.grid, -ar2.grid) %>% as.matrix()
+    gr.start <- gr.start[sapply(1:nrow(gr.start), function(i) toComp(c(gr.start[i, 2:3]))$stable) ,]
+    
+    
     optfn <- function(n, y, x){
         # Estimate
         tryCatch({
-            grid.st <- cbind(gr.start, sapply(1:nrow(gr.start), function(i) UC_opt_KF_i1(gr.start[i, ], 
-                                                                                         y=y, START = 1, ll=TRUE,
-                                                                                         nulim = c(1/100, 25),
-                                                                                         deterministics = FALSE)))
+            grid.st <- cbind(gr.start, 
+                             sapply(1:nrow(gr.start), 
+                                    function(i) UC_opt_KF_i1(gr.start[i, ], 
+                                                             y=y, START = 1, ll=TRUE,
+                                                             nulim = c(1/100, 1e+06),
+                                                             deterministics = FALSE)))
             
             par0 <- grid.st[which.min(grid.st[,4]),-4]
             est <- optim(par=par0,
                          fn = UC_opt_KF_i1, ll = TRUE,
-                         y=y, method = "BFGS", nulim = c(1/100, 100))
+                         y=y, method = "BFGS", nulim = c(1/100, 1e+06))
             
             
             par <- est$par
             nu  <- exp(par[1])
             ar  <- par[-1]
-            KS <- fUC_smooth(y, 1, nu, ar = ar, corr=FALSE)
-            KF <- fUC_comp(y, 1, nu, ar=ar)
+            KS <- fUC_smooth(y, 1, nu, ar = -ar, corr=FALSE)
+            KF <- fUC_comp(y, 1, nu, ar=-ar)
             
             # Calculate Rsq, etc
             SSR <- mean((x - KS$x)^2)
@@ -77,7 +111,7 @@ for ( i in 1:NROW(setups)){
             Rsq <- summary(lm(x ~ KS$x))$r.squared
             
             # Return results
-            results <- c(exp(par[1]), ar, SSR, Rsq)
+            results <- c(exp(par[1]), -ar, SSR, Rsq)
             names(results) <- c("nu", "ar_1", "ar_2","SSR", "Rsq")
             
             
@@ -100,5 +134,5 @@ for ( i in 1:NROW(setups)){
     
     
     rownames(RESULTS) <- c("nu", "ar_1", "ar_2", "SSR", "Rsq")
-    save(RESULTS, file = paste("./MC/Integer/ML/Sim_R", R, "_n", n, "_d", d, "_nu", nu, "_ar_high_ML.RData", sep=""))
+    save(RESULTS, file = paste("./MC/Integer/ML/Sim_R", R, "_n", n, "_d", d, "_r", r, "_corr0.RData", sep=""))
 }
