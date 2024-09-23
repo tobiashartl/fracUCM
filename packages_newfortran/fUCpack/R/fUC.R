@@ -165,7 +165,7 @@ fUC_opt <- function(theta, y, nulim = c(0.05, 10), quiet = TRUE, deterministics 
                 Z <- matrix(1, n, 1)
             }
             if(det.type == "trend"){
-                Z <- cbind(1:n)
+                Z <- cbind(as.numeric(1:n))
             }
             if(!corr){
                 v2 <- apply(Z, 2, function(x) fUC_comp(x, d, nu, ar)$v)
