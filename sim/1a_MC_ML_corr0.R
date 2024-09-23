@@ -10,7 +10,7 @@ library(dplyr)
 library(parallel)
 
 # Wd, etc
-setwd("/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code")
+setwd("~/Dokumente/Projekte/filtering unknown persistence/R/code")
 
 # Settings
 n <- c(100, 200, 300)
@@ -67,7 +67,7 @@ for ( i in 1:nrow(setups)){
     r <- setups[i, 3]
     cat("Iteration ", i, "\n")
     # check if simulation has already been done
-    #if(file.exists(file = paste("./MC/ML/Sim_R", R, "_n", n, "_d", d, "_r", r, "_corr0.RData", sep=""))) next
+    if(file.exists(file = paste("./MC/ML/Sim_R", R, "_n", n, "_d", d, "_r", r, "_corr0.RData", sep=""))) next
     set.seed(42)
     
     # Generate the data
@@ -140,10 +140,10 @@ for ( i in 1:nrow(setups)){
         
     }
     
-    optfn(n, y[,1], y[,1])
+    #optfn(n, y[,1], y[,1])
     
     ### fUC part
-    cl <- makeCluster(100)
+    cl <- makeCluster(32)
     clusterExport(cl, c("optfn", "fUC_opt_ML", "y", "fUC_comp", "ma_inf",
                         "embed0", "fUC_smooth", "x", "frac_diff", "lm", "n", "gr.start"))
     clusterEvalQ(cl, library(fUCpack))

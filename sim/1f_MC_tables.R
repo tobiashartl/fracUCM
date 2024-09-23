@@ -8,8 +8,8 @@ setwd("/Users/tobias/Dokumente/Projekte/filtering unknown persistence/R/code")
 source("./help functions/KF.R")
 # Settings
 n <- c(100, 200, 300)
-d <- c(0.75, 1, 1.25, 1.75)
-r <- c(1, 5, 10)
+d <- c(0.75, 1, 1.75)
+r <- c(0.1, 0, 1, 5, 10)
 R <- 1000
 
 

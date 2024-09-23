@@ -10,7 +10,7 @@ library(dplyr)
 library(parallel)
 
 # Wd, etc
-setwd("/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code")
+setwd("~/Dokumente/Projekte/filtering unknown persistence/R/code")
 
 # Settings
 n <- c(100, 200, 300)
@@ -140,7 +140,7 @@ for ( i in 1:NROW(setups)){
     #optfn(n, y[,1], x[,1])
     
     ### fUC part
-    cl <- makeCluster(100)
+    cl <- makeCluster(32)
     clusterExport(cl, c("optfn", "fUC_opt", "y", "fUC_comp", "ma_inf", 
                         "embed0", "fUC_smooth", "x", "frac_diff", "lm", "n", "gr.start"))
     clusterEvalQ(cl, library(fUCpack))
