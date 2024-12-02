@@ -324,12 +324,13 @@ fUC_opt_ML <- function(theta, y, nulim = c(0.05, 10), quiet = TRUE, approx = TRU
     P_v <- matrix(NA, length(y), 1)
     # initialization:
     if(diffuse){
-        A <- toComp(-theta[-(1:4)])$CompMat
-        p <- length(theta)-4
-        sigma_sq <- Q[2,2]
-        P1A <- matrix(solve(diag(p^2)-(A%x%A))%*%c(sigma_sq,rep(0,p^2-1)),p,p)
-        P1Inf <- bdiag(diag(n-1)*0, P1A)
-        Pt    <- P1Inf
+        A <- toComp(-ar)$CompMat
+        p <- length(ar)
+        sigma_sq <- Q[2, 2]
+        P1A <- matrix(solve(diag(p^2) - (A %x% A)) %*% c(sigma_sq,
+                                                         rep(0, p^2 - 1)), p, p)
+        P1Inf <- bdiag(diag(n - 1) * 0, P1A)
+        Pt <- P1Inf
     }else{
         Pt <- matrix(0, NCOL(Tt), NCOL(Tt))
         #     Pt[1,1] <- Q[1,1]

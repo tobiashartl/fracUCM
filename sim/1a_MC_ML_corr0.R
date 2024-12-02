@@ -10,13 +10,14 @@ library(dplyr)
 library(parallel)
 
 # Wd, etc
-setwd("~/Dokumente/Projekte/filtering unknown persistence/R/code")
+setwd("~/R")
 
 # Settings
 n <- c(100, 200, 300)
 d <- c(0.75, 1, 1.75)
-ratio <- c(1, 10, 30, 0, 0.1)
+ratio <- c(1, 10, 30, 0)
 R <- 1000
+nulim <- c(1/1000, 1e+06)
 
 
 # Strong persistence
@@ -67,7 +68,7 @@ for ( i in 1:nrow(setups)){
     r <- setups[i, 3]
     cat("Iteration ", i, "\n")
     # check if simulation has already been done
-    if(file.exists(file = paste("./MC/ML/Sim_R", R, "_n", n, "_d", d, "_r", r, "_corr0.RData", sep=""))) next
+    if(file.exists(file = paste("./MC/MC_1/ML/Sim_R", R, "_n", n, "_d", d, "_r", r, "_corr0.RData", sep=""))) next
     set.seed(42)
     
     # Generate the data
@@ -95,27 +96,50 @@ for ( i in 1:nrow(setups)){
             # check grid
             grid.st <- cbind(gr.start, sapply(1:nrow(gr.start), function(i) fUC_opt_ML(gr.start[i, ], nu.opt=TRUE,
                                                                                        y=y, START = 1,
-                                                                                       nulim = c(1/100, 1e+06),
+                                                                                       nulim = nulim,
                                                                                        deterministics = FALSE)))
             
             par0 <- grid.st[which.min(grid.st[,5]),-5]
             
             (est <- optim(par=par0, control = list(), nu.opt=TRUE,
                           fn = fUC_opt_ML, quiet = TRUE, START = 1,
-                          y=y, method = "BFGS", nulim = c(1/100, 1e+06), d.int = c(0.5, 2.5),
+                          y=y, method = "BFGS", nulim = nulim, d.int = c(0.5, 2.5),
                           deterministics = FALSE))
             
             # check for corner solutions: 
             j=1
-            while(est$par[1] < .05 | est$par[1] > 1.95 | exp(est$par[2]) < 0.01 | exp(est$par[2]) > 250000){
+            while(est$par[1] < .55 | est$par[1] > 2.45 | exp(est$par[2]) < 0.001 | exp(est$par[2]) > 250000){
                 if(j > 10) break
                 j=j+1
                 par0 <- grid.st[order(grid.st[,5]),-5][j , ]
                 (est <- optim(par=par0, nu.opt=TRUE, 
                               fn = fUC_opt_ML, quiet = TRUE, d.int = c(0.5, 2.5),
-                              y=y, method = "BFGS", nulim = c(1/100, 1e+06),
+                              y=y, method = "BFGS", nulim = nulim,
                               deterministics = FALSE, START = 1))
-                
+            }
+            
+            if(is.na(est$par[1])  |  est$par[1] < .55 | est$par[1] > 2.45){
+                # primitive starting value: set 1
+                par0 <- c(2, grid.st[which.min(grid.st[,5]),2:4])
+                est <- tryCatch({
+                    (optim(par=par0, nu.opt=TRUE, 
+                           fn = fUC_opt_ML, quiet = TRUE, d.int = c(0.5, 2.5),
+                           y=y, method = "BFGS", nulim = nulim,
+                           deterministics = FALSE, START = 1))
+                }, error = function(e) return(NA)
+                )
+                if(is.na(est$par[1] |  est$par[1] < .55 | est$par[1] > 2.45)){
+                    # primitive starting value: set 2
+                    par0 <- c(1, grid.st[which.min(grid.st[,5]),2:4])
+                    est <- tryCatch({
+                        (optim(par=par0, nu.opt=TRUE, 
+                               fn = fUC_opt_ML, quiet = TRUE, d.int = c(0.5, 2.5),
+                               y=y, method = "BFGS", nulim = nulim,
+                               deterministics = FALSE, START = 1))
+                    }, error = function(e) return(NA)
+                    )
+                }
+                if(is.na(est[1])) est <- list(par = NA)
             }
             
             
@@ -143,24 +167,24 @@ for ( i in 1:nrow(setups)){
     #optfn(n, y[,1], y[,1])
     
     ### fUC part
-    cl <- makeCluster(32)
-    clusterExport(cl, c("optfn", "fUC_opt_ML", "y", "fUC_comp", "ma_inf",
+    cl <- makeCluster(64)
+    clusterExport(cl, c("optfn", "fUC_opt_ML", "y", "fUC_comp", "ma_inf", "nulim",
                         "embed0", "fUC_smooth", "x", "frac_diff", "lm", "n", "gr.start"))
     clusterEvalQ(cl, library(fUCpack))
     system.time(RESULTS <- parSapply(cl, 1:R, function(j) optfn(n, y[, j], x[, j])))
     stopCluster(cl)
     
-    dEW_45 <- c(apply(y, 2, EW, type = 1, interval = c(0, 2), alpha = .45))
-    dEW_50 <- c(apply(y, 2, EW, type = 1, interval = c(0, 2), alpha = .50))
-    dEW_55 <- c(apply(y, 2, EW, type = 1, interval = c(0, 2), alpha = .55))
-    dEW_60 <- c(apply(y, 2, EW, type = 1, interval = c(0, 2), alpha = .60))
-    dEW_65 <- c(apply(y, 2, EW, type = 1, interval = c(0, 2), alpha = .65))
-    dEW_70 <- c(apply(y, 2, EW, type = 1, interval = c(0, 2), alpha = .70))
+    dEW_45 <- c(apply(y, 2, EW, type = 1, interval = c(0, 2.5), alpha = .45))
+    dEW_50 <- c(apply(y, 2, EW, type = 1, interval = c(0, 2.5), alpha = .50))
+    dEW_55 <- c(apply(y, 2, EW, type = 1, interval = c(0, 2.5), alpha = .55))
+    dEW_60 <- c(apply(y, 2, EW, type = 1, interval = c(0, 2.5), alpha = .60))
+    dEW_65 <- c(apply(y, 2, EW, type = 1, interval = c(0, 2.5), alpha = .65))
+    dEW_70 <- c(apply(y, 2, EW, type = 1, interval = c(0, 2.5), alpha = .70))
     
     RESULTS <- rbind(RESULTS, c(dEW_45), c(dEW_50), c(dEW_55), c(dEW_60), c(dEW_65), c(dEW_70))
     rownames(RESULTS) <- c("d", "nu", "ar_1", "ar_2", "Rsq", 
                            "d_45", "d_50", "d_55", "d_60", "d_65", "d_70")
-    save(RESULTS, file = paste("./MC/ML/Sim_R", R, "_n", n, "_d", d, "_r", r, "_corr0.RData", sep=""))
+    save(RESULTS, file = paste("./MC/MC_1/ML/Sim_R", R, "_n", n, "_d", d, "_r", r, "_corr0.RData", sep=""))
 }
 
 

@@ -10,14 +10,17 @@ library(dplyr)
 library(parallel)
 
 # Wd, etc
-setwd("/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code")
+setwd("~/R/")
 source("./help functions/KF.R")
 
 # Settings
 n <- c(100, 200, 300)
 d <- c(0.75, 1, 1.75)
-ratio <- c(1, 10, 30, 0, 0.1)
+ratio <- c(1, 10, 30, 0)
 R <- 1000
+nulim = c(1/1000, 1e+06)
+
+
 # Strong persistence
 ar <- c(-1.6, 0.8)
 # Long-run variance part
@@ -62,7 +65,7 @@ for ( i in 1:NROW(setups)){
     r <- setups[i, 3]
     cat("Iteration ", i, "\n")
     
-    #if(file.exists(file = paste("./MC/Integer/Sim_R", R, "_n", n, "_d", d, "_r", r, "_corr0.RData", sep=""))) next
+    if(file.exists(file = paste("./MC/MC_1/CSS_INTEGER/Sim_R", R, "_n", n, "_d", d, "_r", r, "_corr0.RData", sep=""))) next
     set.seed(42)
     
     # Generate the data
@@ -86,16 +89,16 @@ for ( i in 1:NROW(setups)){
         tryCatch({
             # check grid
             grid.st <- cbind(gr.start, sapply(1:nrow(gr.start), function(i) UC_opt_KF_i1(gr.start[i, ], 
-                                                                                    y=y, ll=FALSE,
-                                                                                    nulim = c(1/100, 1e+06),
-                                                                                    deterministics = FALSE)))
+                                                                                         y=y, ll=FALSE,
+                                                                                         nulim = nulim,
+                                                                                         deterministics = FALSE)))
             
             par0 <- grid.st[which.min(grid.st[,4]),-4]
             
             
             est <- optim(par=par0,
                          fn = UC_opt_KF_i1, ll = FALSE,
-                         y=y, method = "BFGS", nulim = c(1/100, 1e+06))
+                         y=y, method = "BFGS", nulim = nulim)
             
             
             par <- est$par
@@ -123,8 +126,8 @@ for ( i in 1:NROW(setups)){
     
     #optfn(n, y[,1], x[,1])
     ### fUC part
-    cl <- makeCluster(6)
-    clusterExport(cl, c("optfn", "UC_opt_KF_i1", "y", "fUC_comp", "ma_inf",
+    cl <- makeCluster(32)
+    clusterExport(cl, c("optfn", "UC_opt_KF_i1", "y", "fUC_comp", "ma_inf", "nulim",
                         "embed0", "fUC_smooth", "x", "frac_diff", "n", "gr.start"))
     clusterEvalQ(cl, library(fUCpack))
     clusterEvalQ(cl, library(KFAS))
@@ -135,5 +138,5 @@ for ( i in 1:NROW(setups)){
     
     
     rownames(RESULTS) <- c("nu", "ar_1", "ar_2", "SSR", "Rsq")
-    save(RESULTS, file = paste("./MC/Integer/Sim_R", R, "_n", n, "_d", d, "_r", r, "_corr0.RData", sep=""))
+    save(RESULTS, file = paste("./MC/MC_1/CSS_INTEGER/Sim_R", R, "_n", n, "_d", d, "_r", r, "_corr0.RData", sep=""))
 }

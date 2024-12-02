@@ -1,0 +1,683 @@
+---
+title: "Finite sample properties"
+author: ""
+output: bookdown::html_document2
+bibliography: literatur_merged.bib  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+For the fractional unobserved components model, this section examines the finite sample properties of the proposed estimation methods relative to popular competitors for the data-generating mechanism
+$$
+y_t = d_t + x_t + c_t + u_t, \qquad \Delta_+^d x_t = \eta_t, \qquad c_t - b_1 c_{t-1} - b_{2}c_{t-2} = \epsilon_t,
+$$
+where $d_t$ controls for deterministic terms, $u_t$ is an additional measurement error, $b_{1,0} = 1.6$, $b_{2,0} = -0.8$ reflect strong cyclical patterns, and 
+$$
+    \mathrm{Var}\begin{pmatrix} \eta_t \\ \epsilon_t\end{pmatrix} = Q.
+$$
+The subsections below vary over $Q$, $d_t$, $u_t$. They consider sample sizes $n \in \{100, 200, 300\}$, integration order $d_0 \in \{0.75, 1.00, 1.75\}$, and variance ratios 
+\begin{equation} 
+\nu_0 \in \left\{1, \frac{n^{-1} \sum_{t=1}^{n}\sum_{j=0}^{t-1} \pi_j^2(-d_0)}{\sum_{j=0}^{\infty} a_j^2(\varphi_0)}  r^{-1}\right\}, \qquad r \in \left\{1, 10, 30\right\},
+ (\#eq:nuMC)
+\end{equation}
+with $\varphi_0 = (b_{1,0}, b_{2,0})'$, and $a(L, \varphi_0) = \sum_{j=0}^{\infty} a_j(\varphi_0)L^j = (1 - b_{1,0}L - b_{2,0}L^2)^{-1}$. While the choices for $n$ and $d_0$ cover empirically relevant sample sizes and integration orders in macroeconomics and finance and allow for a comparison with the $I(1)$ UC model when $d_0=1$, the choice for $\nu_0$ is justified as follows: Trivially, setting $\nu_0 = \sigma_{\epsilon, 0}^2/\sigma_{\eta, 0}^2 = 1$ assigns equal variation to long- and short-run innovations. By its non-stationary nature, the trend then dominates the overall variance of $y_t$, i.e.\ $\mathrm{Var}(x_t)/\mathrm{Var}(c_t) = O(t^{2d_0 - 1})$, which constitutes a favorable scenario for estimating $d_0$. At contrast, letting $\nu_0$ depend on $d_0$ and $\varphi_0$ controls for the diverging variance ratio: The numerator in \@ref(eq:nuMC) is the mean variance of the trend component (under $\sigma_{\eta, 0}^2 = 1$ as in the simulations), hence $\mathrm{Var}(c_t) = \mathrm{Var}(a(L, \varphi_0) \epsilon_t) = \nu \sum_{j=0}^{\infty} a_j^2(\varphi_0) = r^{-1} n^{-1} \sum_{t=1}^{n}\sum_{j=0}^{t-1} \pi_j^2(-d_0)$ is proportional to the mean variance of $x_t$, and $n^{-1} \sum_{t=1}^{n} \mathrm{Var}(x_t)/ \mathrm{Var}(c_t) = r$. This fixes the variance ratio of $x_t$ and $c_t$ (instead of $\sigma^2_{\epsilon, 0}/\sigma_{\eta, 0}^2$), and the lower $r$, the weaker the relative contribution of the trend to the overall variation, and the less favorable the scenario for estimating $d_0$ and $x_t$.
+
+Each Monte Carlo simulation consists of $1000$ replications. For the QML estimator, the trend is initialized with variance zero (as implied by the type II definition of long memory), whereas the cycle is initialized with its long-run variance. Once the prediction error variance satisfies
+$\left| \frac{\mathrm{Var}_\theta(v_{t+1}(\theta)|y_1,...,y_t)-\mathrm{Var}_\theta(v_{t}(\theta)|y_1,...,y_{t-1})}{\mathrm{Var}_\theta(v_{t}(\theta)|y_1,...,y_{t-1})} \right| < 0.01,$ 
+the optimization switches to the steady-state Kalman filter, which assumes the prediction error variance to be constant from that point on. Both CSS and QML estimator are initialized by first evaluating their objective function at a large grid for the model parameters, and the grid point referring to the lowest value of the CSS objective function or the lowest negative likelihood is chosen as the starting point for numerical optimization.  As a benchmark, the exact local Whittle estimator of @ShiPhi2005 is introduced, using $m = \lfloor n^{j} \rfloor$ Fourier frequencies, $j \in \{.50, .60, .70\}$. Moreover, CSS and QML estimation results from the $I(1)$ UC model (setting $d=1$) are reported, as well as QML estimates from the  approximate fractional UC model of @HarWei2018a. The latter approximates the fractional differencing operator by an ARMA($3$, $3$) polynomial, which yields a low-dimensional state space model so that Kalman filter and smoother remain computationally feasible. All benchmarks are initialized analogously to the fractional UC model, and starting values are chosen analogously by evaluating the objective functions at the same grid (but setting $d=1$ for the integer-integrated models).
+Parameter estimates are compared by the root mean squared error (RMSE),
+as well as by the bias. To judge trend and cycle estimates, the coefficients of determination $R_x^2$ and $R_c^2$ from regressing $x_t$ and $c_t$ on their estimates from the Kalman smoother are reported. 
+
+# Uncorrelated innovations {#sec:baseline}
+
+The first simulation considers the prototypical fractional UC model with no measurement error $u_t = 0$, no deterministic terms $d_t=0$, and diagonal covariance matrix $Q$. The resulting fractional UC model is thus
+$$
+y_t = x_t + c_t, \qquad \Delta_+^d x_t = \eta_t, \qquad c_t - b_1 c_{t-1} - b_{2}c_{t-2} = \epsilon_t, \qquad Q = \begin{pmatrix}
+            1 & 0 \\
+            0 & \nu
+        \end{pmatrix}.
+$$
+For a better comparison of QML and CSS, the QML simulation assumes $\sigma_{\eta, 0}^2 = 1$ known, so that optimization is conducted over $(d, \nu, b_1, b_2)'$ both for CSS and QML estimator. 
+
+Table \@ref(tab:tab1) shows the RMSE and the bias for the estimated integration orders. As can be expected, bias and RMSE decrease both in $n$ and $r$, and are significantly smaller as compared to the nonparametric Whittle estimators. The difference is particularly striking when the signal of the trend is drowned by the cycle (i.e.\ $r$ small / $\nu_0$ large), which biases the Whittle estimates towards zero, whereas the estimates for the fractional UC model are hardly affected. Noticeably, for the fractional UC model QML is slightly superior to CSS, and using ARMA approximations as suggested by @HarWei2018a yields estimates that are close to the exact fractional UC models in terms of RMSE and bias.
+
+
+<details><summary>Table \@ref(tab:tab1): Simulation with uncorrelated innovations: root mean squared errors (RMSE) and bias for the integration order estimates.</summary>
+```{r tab1, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab1 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_1/tab1_biasrmse_d.RDS") 
+colnames(tab1) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                    "$d$~CSS~", "$d$~QML~", "$d$~ARMA~",
+                    "$d^{.5}$~EW~", "$d^{.6}$~EW~", "$d^{.7}$~EW~",
+                    "$d$~CSS~", "$d$~QML~", "$d$~ARMA~",
+                    "$d^{.5}$~EW~", "$d^{.6}$~EW~", "$d^{.7}$~EW~")
+kbl(tab1, digits = c(0, 1, 2, rep(2, 20)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrr",
+    caption = "") %>%
+    add_header_above(c(" " = 4, "RMSE" = 6, "bias" = 6)) %>%
+    kable_paper("hover", full_width = T)
+```
+</details>
+
+\
+
+
+Tables \@ref(tab:tab2) and \@ref(tab:tab3) detail RMSE and bias for $\nu_0$ and the autoregressive parameters. In addition to the fractional UC model, the tables also display the estimation results for the $I(1)$ UC benchmark. For $b_{1,0}$ and $b_{2,0}$, CSS and QML estimates for the fractional UC model behave equally well, while those from the approximate fractional UC model and the integer-integrated benchmarks come with a slightly higher RMSE. Interestingly, the estimates for $\nu_0$ show a clear dominance of QML over CSS, as the latter comes with a much higher RMSE and strong, positive bias. QML - at contrast - does not appear biased. A violation $d_0 \neq 1$ in integer-integrated models has a rather small effect on the estimates for the cyclical autoregressive coefficients, but a comparably strong effect on the estimate for $\nu_0$ also for the QML estimator, thus shifting variation from trend to cycle. 
+
+<details><summary>Table \@ref(tab:tab2): Simulation with uncorrelated innovations: root mean squared errors (RMSE) for the other parameter estimates.</summary>
+```{r tab2, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab2 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_1/tab2_rmse_oth.RDS") 
+ colnames(tab2) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                     "$\\nu$~CSS~", "$\\nu$~QML~", "$\\nu$~ARMA~",
+                     "$\\nu^{I(1)}$~CSS~", "$\\nu^{I(1)}$~QML~",
+                     "$b_1$~CSS~", "$b_1$~QML~", "$b_1$~ARMA~",
+                     "$b_1^{I(1)}$~CSS~", "$b_1^{I(1)}$~QML~",
+                     "$b_2$~CSS~", "$b_2$~QML~", "$b_2$~ARMA~",
+                     "$b_2^{I(1)}$~CSS~", "$b_2^{I(1)}$~QML~"
+                     )
+     
+kbl(tab2, digits = c(0, 1, 2, rep(2, 20)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrrrrr",
+    caption = "") %>%
+    kable_paper("hover", full_width = T)
+```
+</details>
+
+\
+
+<details><summary>Table \@ref(tab:tab3): Simulation with uncorrelated innovations: bias for the other parameter estimates.</summary>
+```{r tab3, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab3 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_1/tab3_bias_oth.RDS")
+ colnames(tab3) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                     "$\\nu$~CSS~", "$\\nu$~QML~", "$\\nu$~ARMA~",
+                     "$\\nu^{I(1)}$~CSS~", "$\\nu^{I(1)}$~QML~",
+                     "$b_1$~CSS~", "$b_1$~QML~", "$b_1$~ARMA~",
+                     "$b_1^{I(1)}$~CSS~", "$b_1^{I(1)}$~QML~",
+                     "$b_2$~CSS~", "$b_2$~QML~", "$b_2$~ARMA~",
+                     "$b_2^{I(1)}$~CSS~", "$b_2^{I(1)}$~QML~"
+                     )
+kbl(tab3, digits = c(0, 1, 2, rep(2, 20)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrrrrr",
+    caption = "") %>%
+    kable_paper("hover", full_width = T)
+```
+</details>
+
+\
+
+Table \@ref(tab:tab4) compares the estimates for $x_t$ and $c_t$ for the different models by regressing the respective Kalman smoother-based estimates on the true trend and cycle and reporting the coefficient of determination. 
+Note that the coefficient of determination for $x_t$ should be interpreted with caution: Under correct specification, $\hat x_t$ and $x_t$ are cointegrated, so that regressing the estimate on the true, simulated $x_t$ yields an interpretable $R^2$. This no longer holds under model misspecification, e.g.\ when $x_t \sim I(d_0)$, $d_0 \neq 1$, and $x_t$ is regressed on an $I(1)$ trend: The respective regression then becomes spurious, and the $R^2$ is no longer interpretable. Consequently, a high $R^2$ for integer-integrated models when $d_0 \neq 1$ does not necessarily indicate a good fit. Fortunately, the simulated $c_t$ are always $I(0)$, so that their coefficients of determination allow for a valid comparison among the fractional and integer-integrated UC models whenever $d_0 \neq 1$. 
+
+
+As can be seen, differences between the coefficients of determination are almost negligible for CSS and QML estimator of the fractional UC model, with the latter exhibiting slightly larger coefficients of determination. Strikingly, for $d_0=1$ the fractional UC model shows no loss in efficiency compared to the $I(1)$ UC model. For non-integer $d_0$, the fractional model shows a higher $R^2$  than the integer-integrated benchmarks, particularly when $d_0 = 1.75$. However, integer-integrated UC models often provide a good approximation to fractionally integrated trends as long as correlation between trend and cycle innovations is ruled out. 
+
+<details><summary>Table \@ref(tab:tab4): Simulation with uncorrelated innovations: Coefficient of determination from regressing true trend and cycle on their respective estimates from the Kalman smoother.</summary>
+```{r tab4, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab4 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_1/tab4_rsq.RDS")
+colnames(tab4) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                     "$R^2$~CSS~", "$R^2$~QML~", "$R^2$~ARMA~",
+                     "${R^2}^{I(1)}$~CSS~", "${R^2}^{I(1)}$~QML~",
+                     "$R^2$~CSS~", "$R^2$~QML~", "$R^2$~ARMA~",
+                     "${R^2}^{I(1)}$~CSS~", "${R^2}^{I(1)}$~QML~"
+                     )
+kbl(tab4, digits = c(0, 1, 2, rep(2, 20)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrrrrr",
+    caption = "") %>%
+    add_header_above(c(" " = 4, "Trend" = 5, "Cycle" = 5)) %>%
+    kable_paper("hover", full_width = T)
+```
+</details>
+
+\
+
+
+# Correlated innovations
+
+The second simulation generalizes the prototypical fractional UC model to correlated innovations, allowing for a non-diagonal covariance matrix $Q$. The resulting fractional UC model is thus
+$$
+y_t = x_t + c_t, \qquad \Delta_+^d x_t = \eta_t, \qquad c_t - b_1 c_{t-1} - b_{2}c_{t-2} = \epsilon_t, \qquad Q = \begin{pmatrix}
+            1 & \rho \sqrt{\nu} \\
+            \rho\sqrt{\nu} & \nu
+        \end{pmatrix},
+$$
+where $\rho = -0.8$ is set to mimic strong but not perfect correlation. Optimization is now conducted over $(d, \nu, \nu_2, b_1, b_2)'$ for the CSS estimator, and $(d, \sigma_{\eta}^2, \sigma_{\eta \epsilon}, \sigma_\epsilon^2, b_1, b_2)'$ for the QML estimator of the fractional UC model, however in both cases bias and RMSE are reported for $\hat \rho = \widehat{\mathrm{Corr}(\eta_t, \epsilon_t)}$ for comprehensibility. 
+
+Table \@ref(tab:tab21) shows the RMSE and the bias for the estimated integration orders. As before, bias and RMSE decrease both in $n$ and $r$, and are significantly smaller as compared to the nonparametric Whittle estimators. Compared to the uncorrelated case, the threshold between CSS and QML in terms of performance is somewhat smaller, which may be due to the additional parameter that QML now has to estimate. Nonetheless, QML is clearly favored by the Monte Carlo study, also because its bias is comparably small. 
+
+<details><summary>Table \@ref(tab:tab21): Simulation with correlated innovations: root mean squared errors (RMSE) and bias for the integration order estimates.</summary>
+```{r tab21, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab21 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_2/tab1_biasrmse_d.RDS")
+colnames(tab21) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                    "$d$~CSS~", "$d$~QML~", "$d$~ARMA~",
+                    "$d^{.5}$~EW~", "$d^{.6}$~EW~", "$d^{.7}$~EW~",
+                    "$d$~CSS~", "$d$~QML~", "$d$~ARMA~",
+                    "$d^{.5}$~EW~", "$d^{.6}$~EW~", "$d^{.7}$~EW~")
+kbl(tab21, digits = c(0, 1, 2, rep(2, 20)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrr",
+    caption = "") %>%
+    add_header_above(c(" " = 4, "RMSE" = 6, "bias" = 6)) %>%
+    kable_paper("hover", full_width = T)
+```
+</details>
+
+\
+
+
+Tables \@ref(tab:tab22) to \@ref(tab:tab25) detail RMSE and bias for the covariance and autoregressive parameters, both for the fractional UC model and the integer-integrated benchmark. As before, estimates for $\nu_0$ from the CSS estimator come with a large RMSE and bias, so they should be interpreted with caution. Moreover, results from the QML estimator show that the covariance matrix $Q_0$ is notoriously difficult to estimate, in particular when $n$ is small and $\nu_0$ is large. For larger $n$, both exact and approximate fractional UC model yield a small bias for the parameters in $Q_0$ even when $\nu_0$ is large, and the RMSE for $\sigma_{\epsilon, 0}^2 = \nu_0$ is at least moderate compared to the level of $\nu_0$, unlike the RMSE for $\sigma_{\eta, 0}^2 = 1$ which is high relative to $\sigma_{\eta, 0}^2$ whenever $\nu_0$ is large. Noticeably, estimates $\hat \rho$ from the integer-integrated UC models are massively biased whenever $d_0 \neq 1$, and often were found to converge to corner solutions (where $|\hat \rho | = 1$). Hence, empirical results in the UC literature that indicate (almost) perfect correlation between long- and short-run innovations may also be an artifact generated by the misspecification of the integration order of the UC model. Results for the autoregressive parameters are similar to those from the uncorrelated model, where all fractional and integer-integrated UC models showed stable and reliable behavior. 
+
+
+<details><summary>Table \@ref(tab:tab22): Simulation with correlated innovations: root mean squared errors (RMSE) for the covariance parameter estimates.</summary>
+```{r tab22, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab22 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_2/tab2_rmse_oth1.RDS") %>%
+    dplyr::select(c("n",  "r", "d0",  "nu0",
+           "nu", "nu_i1", 
+           "rho", "rho_ML", "rho_ARMA", "rho_i1", "rho_i1_ML",
+           "eta_ML", "eta_ARMA", "eta_i1_ML",
+           "eps_ML", "eps_ARMA", "eps_i1_ML"))
+# "n",  "r", "d0",  "nu0",
+#           "nu", "nu_ML", "nu_ARMA" , "nu_i1", "nu_i1_ML",
+#           "rho", "rho_ML", "rho_ARMA", "rho_i1", "rho_i1_ML",
+#           "eta_ML", "eta_ARMA", "eta_i1_ML",
+#           "eps_ML", "eps_ARMA", "eps_i1_ML"
+ colnames(tab22) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                     "$\\nu$~CSS~", #"$\\nu$~QML~", "$\\nu$~ARMA~",
+                     "$\\nu^{I(1)}$~CSS~", #"$\\nu^{I(1)}$~QML~",
+                     "$\\rho$~CSS~", "$\\rho$~QML~", "$\\rho$~ARMA~",
+                     "$\\rho^{I(1)}$~CSS~", "$\\rho^{I(1)}$~QML~",
+                     "$\\sigma_{\\eta}^2$~QML~", "$\\sigma_{\\eta}^2$~ARMA~",
+                     "$\\sigma_{\\eta}^{2^{I(1)}}$~QML~",
+                     "$\\sigma_{\\epsilon}^2$~QML~", "$\\sigma_{\\epsilon}^2$~ARMA~",
+                     "$\\sigma_{\\epsilon}^{2^{I(1)}}$~QML~"
+                     )
+kbl(tab22, digits = c(0, 1, 2, rep(2, 21)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrrrrr",
+    caption = "") %>%
+    kable_paper("hover", full_width = T)
+```
+
+</details>
+
+
+
+
+<details><summary>Table \@ref(tab:tab23): Simulation with correlated innovations: bias for the covariance parameter estimates.</summary>
+```{r tab23, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab23 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_2/tab2_bias_oth1.RDS") %>%
+    dplyr::select(c("n",  "r", "d0",  "nu0",
+           "nu", "nu_i1", 
+           "rho", "rho_ML", "rho_ARMA", "rho_i1", "rho_i1_ML",
+           "eta_ML", "eta_ARMA", "eta_i1_ML",
+           "eps_ML", "eps_ARMA", "eps_i1_ML"))
+# "n",  "r", "d0",  "nu0",
+#           "nu", "nu_ML", "nu_ARMA" , "nu_i1", "nu_i1_ML",
+#           "rho", "rho_ML", "rho_ARMA", "rho_i1", "rho_i1_ML",
+#           "eta_ML", "eta_ARMA", "eta_i1_ML",
+#           "eps_ML", "eps_ARMA", "eps_i1_ML"
+ colnames(tab23) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                     "$\\nu$~CSS~", #"$\\nu$~QML~", "$\\nu$~ARMA~",
+                     "$\\nu^{I(1)}$~CSS~", #"$\\nu^{I(1)}$~QML~",
+                     "$\\rho$~CSS~", "$\\rho$~QML~", "$\\rho$~ARMA~",
+                     "$\\rho^{I(1)}$~CSS~", "$\\rho^{I(1)}$~QML~",
+                     "$\\sigma_{\\eta}^2$~QML~", "$\\sigma_{\\eta}^2$~ARMA~",
+                     "$\\sigma_{\\eta}^{2^{I(1)}}$~QML~",
+                     "$\\sigma_{\\epsilon}^2$~QML~", "$\\sigma_{\\epsilon}^2$~ARMA~",
+                     "$\\sigma_{\\epsilon}^{2^{I(1)}}$~QML~"
+                     )
+kbl(tab23, digits = c(0, 1, 2, rep(2, 21)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrrrrr",
+    caption = "") %>%
+    kable_paper("hover", full_width = T)
+```
+</details>
+
+
+<details><summary>Table \@ref(tab:tab26): Simulation with correlated innovations: root mean squared errors (RMSE) for the autoregressive parameter estimates.</summary>
+```{r tab26, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab24 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_2/tab2_rmse_oth2.RDS") %>%
+    dplyr::select(c("n",  "r", "d0",  "nu0",
+           "ar1", "ar1_ML", "ar1_ARMA", "ar1_i1","ar1_i1_ML",
+           "ar2", "ar2_ML", "ar2_ARMA", "ar2_i1","ar2_i1_ML"))
+# "n",  "r", "d0",  "nu0",
+#           "nu", "nu_ML", "nu_ARMA" , "nu_i1", "nu_i1_ML",
+#           "rho", "rho_ML", "rho_ARMA", "rho_i1", "rho_i1_ML",
+#           "eta_ML", "eta_ARMA", "eta_i1_ML",
+#           "eps_ML", "eps_ARMA", "eps_i1_ML"
+ colnames(tab24) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                     "$b_1$~CSS~", "$b_1$~QML~", "$b_1$~ARMA~",
+                     "$b_1^{I(1)}$~CSS~", "$b_1^{I(1)}$~QML~",
+                     "$b_2$~CSS~", "$b_2$~QML~", "$b_2$~ARMA~",
+                     "$b_2^{I(1)}$~CSS~", "$b_2^{I(1)}$~QML~"
+                     )
+kbl(tab24, digits = c(0, 1, 2, rep(2, 21)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrrrrr",
+    caption = "") %>%
+    kable_paper("hover", full_width = T)
+```
+</details>
+
+
+
+
+
+<details><summary>Table \@ref(tab:tab25): Simulation with correlated innovations: bias for the other parameter estimates.</summary>
+```{r tab25, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab25 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_2/tab2_bias_oth2.RDS") %>%
+    dplyr::select(c("n",  "r", "d0",  "nu0",
+           "ar1", "ar1_ML", "ar1_ARMA", "ar1_i1","ar1_i1_ML",
+           "ar2", "ar2_ML", "ar2_ARMA", "ar2_i1","ar2_i1_ML"))
+# "n",  "r", "d0",  "nu0",
+#           "nu", "nu_ML", "nu_ARMA" , "nu_i1", "nu_i1_ML",
+#           "rho", "rho_ML", "rho_ARMA", "rho_i1", "rho_i1_ML",
+#           "eta_ML", "eta_ARMA", "eta_i1_ML",
+#           "eps_ML", "eps_ARMA", "eps_i1_ML"
+ colnames(tab25) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                     "$b_1$~CSS~", "$b_1$~QML~", "$b_1$~ARMA~",
+                     "$b_1^{I(1)}$~CSS~", "$b_1^{I(1)}$~QML~",
+                     "$b_2$~CSS~", "$b_2$~QML~", "$b_2$~ARMA~",
+                     "$b_2^{I(1)}$~CSS~", "$b_2^{I(1)}$~QML~"
+                     )
+
+kbl(tab25, digits = c(0, 1, 2, rep(2, 21)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrrrrr",
+    caption = "") %>%
+    kable_paper("hover", full_width = T)
+```
+</details>
+
+
+
+
+
+Table \@ref(tab:tab24) compares the coefficient of determination for the estimates of $x_t$ and $c_t$ by regressing the respective Kalman smoother-based estimates on the true trend and cycle. As before, the QML estimates for the fractional UC model dominate, however the gap to CSS gets somewhat bigger. Moreover, once correlation is allowed, integer-integrated UC models perform poorer in approximating the fractional model  
+whenever $d_0 \neq 1$, as manifested by a lower $R^2$ compared to the uncorrelated simulations.
+
+
+<details><summary>Table \@ref(tab:tab24): Simulation with correlated innovations: Coefficient of determination from regressing true trend and cycle on their respective estimates from the Kalman smoother.</summary>
+```{r tab24, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab4 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_2/tab4_rsq.RDS")
+colnames(tab4) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                     "$R^2$~CSS~", "$R^2$~QML~", "$R^2$~ARMA~",
+                     "${R^2}^{I(1)}$~CSS~", "${R^2}^{I(1)}$~QML~",
+                     "$R^2$~CSS~", "$R^2$~QML~", "$R^2$~ARMA~",
+                     "${R^2}^{I(1)}$~CSS~", "${R^2}^{I(1)}$~QML~"
+                     )
+kbl(tab4, digits = c(0, 1, 2, rep(2, 20)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrrrrr",
+    caption = "") %>%
+    add_header_above(c(" " = 4, "Trend" = 5, "Cycle" = 5)) %>%
+    kable_paper("hover", full_width = T)
+```
+</details>
+
+\
+
+# Deterministic trends {#sec:trend}
+
+The third simulation adds a linear, deterministic trend to the fractional UC model
+$$
+y_t =  t + x_t + c_t, \qquad \Delta_+^d x_t = \eta_t, \qquad c_t - b_1 c_{t-1} - b_{2}c_{t-2} = \epsilon_t, \qquad  Q = \begin{pmatrix}
+            1 & 0 \\
+            0 & \nu
+        \end{pmatrix},
+$$
+Note that since $\sigma_\eta^2 = 1$, the variation generated by the deterministic trend is proportional to the variation generated by the stochastic trend innovations.
+
+
+
+Table \@ref(tab:tab31) shows the RMSE and the bias for the estimated integration orders. Noticeably, including a linear deterministic trend generates a negative bias for $\hat d$ when $r=1$. In this setting, the overall variation generated by the cycle is large, whereas the stochastic trend attributes little to the overall dynamics and is relatively smooth. The fractional UC model then attributes some of the variation of the stochastic trend to the deterministic term, so that the estimate for the trend component can take up some of the variation generated by the cycle. This reduces the memory estimate $\hat d$ and explains the results for $r=1$. This bias vanishes as $n$ and $r$ increase. All other conclusions are similar to those of table \@ref(tab:tab1).
+
+
+<details><summary>Table \@ref(tab:tab31): Simulation with deterministic trend: root mean squared errors (RMSE) and bias for the integration order estimates.</summary>
+```{r tab31, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab1 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_6/tab1_biasrmse_d.RDS") 
+colnames(tab1) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                    "$d$~CSS~", "$d$~QML~", "$d$~ARMA~",
+                    "$d^{.5}$~EW~", "$d^{.6}$~EW~", "$d^{.7}$~EW~",
+                    "$d$~CSS~", "$d$~QML~", "$d$~ARMA~",
+                    "$d^{.5}$~EW~", "$d^{.6}$~EW~", "$d^{.7}$~EW~")
+kbl(tab1, digits = c(0, 1, 2, rep(2, 20)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrr",
+    caption = "") %>%
+    add_header_above(c(" " = 4, "RMSE" = 6, "bias" = 6)) %>%
+    kable_paper("hover", full_width = T)
+```
+</details>
+
+\
+
+
+Tables \@ref(tab:tab32) and \@ref(tab:tab33) detail RMSE and bias for $\nu_0$ and the autoregressive parameters. They show a similar performance as in tables \@ref(tab:tab2) and \@ref(tab:tab3).
+
+<details><summary>Table \@ref(tab:tab32): Simulation with deterministic trend: root mean squared errors (RMSE) for the other parameter estimates.</summary>
+```{r tab32, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab2 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_6/tab2_rmse_oth.RDS") 
+ colnames(tab2) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                     "$\\nu$~CSS~", "$\\nu$~QML~", "$\\nu$~ARMA~",
+                     "$\\nu^{I(1)}$~CSS~", "$\\nu^{I(1)}$~QML~",
+                     "$b_1$~CSS~", "$b_1$~QML~", "$b_1$~ARMA~",
+                     "$b_1^{I(1)}$~CSS~", "$b_1^{I(1)}$~QML~",
+                     "$b_2$~CSS~", "$b_2$~QML~", "$b_2$~ARMA~",
+                     "$b_2^{I(1)}$~CSS~", "$b_2^{I(1)}$~QML~"
+                     )
+     
+kbl(tab2, digits = c(0, 1, 2, rep(2, 20)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrrrrr",
+    caption = "") %>%
+    kable_paper("hover", full_width = T)
+```
+</details>
+
+\
+
+<details><summary>Table \@ref(tab:tab33): Simulation with deterministic trend: bias for the other parameter estimates.</summary>
+```{r tab33, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab3 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_6/tab3_bias_oth.RDS")
+ colnames(tab3) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                     "$\\nu$~CSS~", "$\\nu$~QML~", "$\\nu$~ARMA~",
+                     "$\\nu^{I(1)}$~CSS~", "$\\nu^{I(1)}$~QML~",
+                     "$b_1$~CSS~", "$b_1$~QML~", "$b_1$~ARMA~",
+                     "$b_1^{I(1)}$~CSS~", "$b_1^{I(1)}$~QML~",
+                     "$b_2$~CSS~", "$b_2$~QML~", "$b_2$~ARMA~",
+                     "$b_2^{I(1)}$~CSS~", "$b_2^{I(1)}$~QML~"
+                     )
+kbl(tab3, digits = c(0, 1, 2, rep(2, 20)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrrrrr",
+    caption = "") %>%
+    kable_paper("hover", full_width = T)
+```
+</details>
+
+\
+
+Table \@ref(tab:tab34) compares the estimates for $x_t$ and $c_t$ for the different models by regressing the respective Kalman smoother-based estimates on the true trend and cycle and reporting the coefficient of determination. Results are again similar to table \@ref(tab:tab4).
+
+<details><summary>Table \@ref(tab:tab34): Simulation with deterministic trend: Coefficient of determination from regressing true trend and cycle on their respective estimates from the Kalman smoother.</summary>
+```{r tab34, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab4 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_6/tab4_rsq.RDS")
+colnames(tab4) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                     "$R^2$~CSS~", "$R^2$~QML~", "$R^2$~ARMA~",
+                     "${R^2}^{I(1)}$~CSS~", "${R^2}^{I(1)}$~QML~",
+                     "$R^2$~CSS~", "$R^2$~QML~", "$R^2$~ARMA~",
+                     "${R^2}^{I(1)}$~CSS~", "${R^2}^{I(1)}$~QML~"
+                     )
+kbl(tab4, digits = c(0, 1, 2, rep(2, 20)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrrrrr",
+    caption = "") %>%
+    add_header_above(c(" " = 4, "Trend" = 5, "Cycle" = 5)) %>%
+    kable_paper("hover", full_width = T)
+```
+</details>
+
+\
+
+
+# Deterministic trends with breaks
+
+The fourth simulation modifies the DGP of the previous simulation by imposing a trend break at $\lfloor T/2 \rfloor$
+
+$$
+y_t = d_t + x_t + c_t, \qquad \Delta_+^d x_t = \eta_t, \qquad c_t - b_1 c_{t-1} - b_{2}c_{t-2} = \epsilon_t, \qquad Q = \begin{pmatrix}
+            1 & 0 \\
+            0 & \nu
+        \end{pmatrix},
+$$
+where 
+$$
+    d_t = \begin{cases}
+         t & \text{ if } t \leq \lfloor T/2 \rfloor \\
+         t - (1 / 2) (t -  \lfloor T/2 \rfloor) & \text{else.}
+    \end{cases}
+$$
+This break is not anticipated by the fractional UC model, i.e.\ the model of section \@ref(sec:trend) is fit to the DGP with a trend break at $\lfloor T/2 \rfloor$. The impact of the model misspecification is then studied in what follows.
+
+
+Table \@ref(tab:tab41) shows the RMSE and the bias for the estimated integration orders.
+Adding an (unanticipated) trend break to the DGP slightly increases the RMSE for $d_0=0.75$, but not for the higher $d_0$ (where the trend is differenced out during the estimation). However, it leaves the relative performance of the estimators under study unaffected: Again, the parametric models outperform the benchmarks, QML outperforms CSS, and ARMA approximations yield surprisingly good estimates. Noticeably, the unanticipated trend break does not induce an additional bias to the estimate of $d_0$, as a comparison to section  \@ref(sec:trend) shows.
+
+
+<details><summary>Table \@ref(tab:tab41): Simulation with a deterministic trend with unanticipated break: root mean squared errors (RMSE) and bias for the integration order estimates.</summary>
+```{r tab41, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab1 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_7/tab1_biasrmse_d.RDS") 
+colnames(tab1) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                    "$d$~CSS~", "$d$~QML~", "$d$~ARMA~",
+                    "$d^{.5}$~EW~", "$d^{.6}$~EW~", "$d^{.7}$~EW~",
+                    "$d$~CSS~", "$d$~QML~", "$d$~ARMA~",
+                    "$d^{.5}$~EW~", "$d^{.6}$~EW~", "$d^{.7}$~EW~")
+kbl(tab1, digits = c(0, 1, 2, rep(2, 20)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrr",
+    caption = "") %>%
+    add_header_above(c(" " = 4, "RMSE" = 6, "bias" = 6)) %>%
+    kable_paper("hover", full_width = T)
+```
+</details>
+
+\
+
+
+Tables \@ref(tab:tab42) and \@ref(tab:tab43) contain RMSE and bias for $\nu_0$ and the autoregressive parameters.
+Again, for $d_0 = 0.75$ adding an (unanticipated) break increases the RMSE for the estimates of $\nu_0$ and the autoregressive parameters. The latter in addition become biased whenever $\nu_0$ is very small, i.e.\ when the contribution of the cycle to the overall variation is small. All further conclusions are similar to those drawn from tables \@ref(tab:tab32) and \@ref(tab:tab33), i.e.\ the simulations with a linear deterministic trend without break.
+
+<details><summary>Table \@ref(tab:tab42): Simulation with a deterministic trend with unanticipated break: root mean squared errors (RMSE) for the other parameter estimates.</summary>
+```{r tab42, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab2 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_7/tab2_rmse_oth.RDS") 
+ colnames(tab2) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                     "$\\nu$~CSS~", "$\\nu$~QML~", "$\\nu$~ARMA~",
+                     "$\\nu^{I(1)}$~CSS~", "$\\nu^{I(1)}$~QML~",
+                     "$b_1$~CSS~", "$b_1$~QML~", "$b_1$~ARMA~",
+                     "$b_1^{I(1)}$~CSS~", "$b_1^{I(1)}$~QML~",
+                     "$b_2$~CSS~", "$b_2$~QML~", "$b_2$~ARMA~",
+                     "$b_2^{I(1)}$~CSS~", "$b_2^{I(1)}$~QML~"
+                     )
+     
+kbl(tab2, digits = c(0, 1, 2, rep(2, 20)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrrrrr",
+    caption = "") %>%
+    kable_paper("hover", full_width = T)
+```
+</details>
+
+\
+
+<details><summary>Table \@ref(tab:tab43): Simulation with a deterministic trend with unanticipated break: bias for the other parameter estimates.</summary>
+```{r tab43, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab3 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_7/tab3_bias_oth.RDS")
+ colnames(tab3) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                     "$\\nu$~CSS~", "$\\nu$~QML~", "$\\nu$~ARMA~",
+                     "$\\nu^{I(1)}$~CSS~", "$\\nu^{I(1)}$~QML~",
+                     "$b_1$~CSS~", "$b_1$~QML~", "$b_1$~ARMA~",
+                     "$b_1^{I(1)}$~CSS~", "$b_1^{I(1)}$~QML~",
+                     "$b_2$~CSS~", "$b_2$~QML~", "$b_2$~ARMA~",
+                     "$b_2^{I(1)}$~CSS~", "$b_2^{I(1)}$~QML~"
+                     )
+kbl(tab3, digits = c(0, 1, 2, rep(2, 20)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrrrrr",
+    caption = "") %>%
+    kable_paper("hover", full_width = T)
+```
+</details>
+
+\
+
+Table \@ref(tab:tab44) compares the estimates for $x_t$ and $c_t$ for the different models by regressing the respective Kalman smoother-based estimates on the true trend and cycle and reporting the coefficient of determination. Again, allowing for an unanticipated trend break does not show deviations from the relative ordering in table \@ref(tab:tab34); however for low $d_0$ the coefficients of determination for the trend are somewhat smaller
+
+<details><summary>Table \@ref(tab:tab44): Simulation with a deterministic trend with unanticipated break: Coefficient of determination from regressing true trend and cycle on their respective estimates from the Kalman smoother.</summary>
+```{r tab44, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab4 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_7/tab4_rsq.RDS")
+colnames(tab4) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                     "$R^2$~CSS~", "$R^2$~QML~", "$R^2$~ARMA~",
+                     "${R^2}^{I(1)}$~CSS~", "${R^2}^{I(1)}$~QML~",
+                     "$R^2$~CSS~", "$R^2$~QML~", "$R^2$~ARMA~",
+                     "${R^2}^{I(1)}$~CSS~", "${R^2}^{I(1)}$~QML~"
+                     )
+kbl(tab4, digits = c(0, 1, 2, rep(2, 20)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrrrrr",
+    caption = "") %>%
+    add_header_above(c(" " = 4, "Trend" = 5, "Cycle" = 5)) %>%
+    kable_paper("hover", full_width = T)
+```
+</details>
+
+\
+
+
+
+# Outliers
+
+The fifth simulation considers a data-generating mechanism with unanticipated outlier
+
+$$
+y_t = u_t + x_t + c_t, \qquad \Delta_+^d x_t = \eta_t, \qquad c_t - b_1 c_{t-1} - b_{2}c_{t-2} = \epsilon_t, \qquad Q = \begin{pmatrix}
+            1 & 0 \\
+            0 & \nu
+        \end{pmatrix},
+$$
+where 
+$$
+    u_t = \begin{cases}
+        - 10 \sqrt{\nu} & \text{ if } t = t^*, \\
+        0 & \text{else,}
+    \end{cases}
+$$
+and $t^*$ is drawn from $\{\lfloor 0.9 T \rfloor, \lfloor 0.9 T \rfloor + 1, ..., T-1, T\}$ to mimic a situation with an outlier at the end of the sample, a situation where detecting an outlier is particularly difficult. The magnitude of the outlier is $10$ times the standard deviation of the short-run innovations. The fUC model does not anticipate the outlier, i.e.\ the model of section \@ref(sec:baseline) is fit to the above DGP.
+
+Table \@ref(tab:tab51) details RMSE and bias for the estimated integration orders.
+Naturally, introducing the outlier increases the RMSE as compared to subsection \@ref(sec:baseline), particularly for large $\nu_0$. Moreover, $\hat d$ is downward-biased, and the higher the $\nu_0$ (and thus the magnitude of the bias), the larger the bias. For $\nu_0$ fixed, the bias decreases as $n$ increases. The relative performance of the different estimators is in line with the results of table \@ref(tab:tab1), the simulation without outlier. 
+
+
+<details><summary>Table \@ref(tab:tab51): Simulation with unanticipated outlier: root mean squared errors (RMSE) and bias for the integration order estimates.</summary>
+```{r tab51, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab1 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_5/tab1_biasrmse_d.RDS") 
+colnames(tab1) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                    "$d$~CSS~", "$d$~QML~", "$d$~ARMA~",
+                    "$d^{.5}$~EW~", "$d^{.6}$~EW~", "$d^{.7}$~EW~",
+                    "$d$~CSS~", "$d$~QML~", "$d$~ARMA~",
+                    "$d^{.5}$~EW~", "$d^{.6}$~EW~", "$d^{.7}$~EW~")
+kbl(tab1, digits = c(0, 1, 2, rep(2, 20)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrr",
+    caption = "") %>%
+    add_header_above(c(" " = 4, "RMSE" = 6, "bias" = 6)) %>%
+    kable_paper("hover", full_width = T)
+```
+</details>
+
+\
+
+
+Tables \@ref(tab:tab52) and \@ref(tab:tab53) contain RMSE and bias for $\nu_0$ and the autoregressive parameters. While the outlier increases the RMSE significantly, the relative performance of all estimators is similar to the results in tables \@ref(tab:tab2) and \@ref(tab:tab3). Naturally, the outlier upward-biases the estimate for $\nu_0$ for the QML estimator, and this bias decreases in $n$. 
+
+<details><summary>Table \@ref(tab:tab52): Simulation with unanticipated outlier: root mean squared errors (RMSE) for the other parameter estimates.</summary>
+```{r tab52, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab2 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_5/tab2_rmse_oth.RDS") 
+ colnames(tab2) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                     "$\\nu$~CSS~", "$\\nu$~QML~", "$\\nu$~ARMA~",
+                     "$\\nu^{I(1)}$~CSS~", "$\\nu^{I(1)}$~QML~",
+                     "$b_1$~CSS~", "$b_1$~QML~", "$b_1$~ARMA~",
+                     "$b_1^{I(1)}$~CSS~", "$b_1^{I(1)}$~QML~",
+                     "$b_2$~CSS~", "$b_2$~QML~", "$b_2$~ARMA~",
+                     "$b_2^{I(1)}$~CSS~", "$b_2^{I(1)}$~QML~"
+                     )
+     
+kbl(tab2, digits = c(0, 1, 2, rep(2, 20)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrrrrr",
+    caption = "") %>%
+    kable_paper("hover", full_width = T)
+```
+</details>
+
+\
+
+<details><summary>Table \@ref(tab:tab53): Simulation with unanticipated outlier: bias for the other parameter estimates.</summary>
+```{r tab53, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab3 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_5/tab3_bias_oth.RDS")
+ colnames(tab3) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                     "$\\nu$~CSS~", "$\\nu$~QML~", "$\\nu$~ARMA~",
+                     "$\\nu^{I(1)}$~CSS~", "$\\nu^{I(1)}$~QML~",
+                     "$b_1$~CSS~", "$b_1$~QML~", "$b_1$~ARMA~",
+                     "$b_1^{I(1)}$~CSS~", "$b_1^{I(1)}$~QML~",
+                     "$b_2$~CSS~", "$b_2$~QML~", "$b_2$~ARMA~",
+                     "$b_2^{I(1)}$~CSS~", "$b_2^{I(1)}$~QML~"
+                     )
+kbl(tab3, digits = c(0, 1, 2, rep(2, 20)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrrrrr",
+    caption = "") %>%
+    kable_paper("hover", full_width = T)
+```
+</details>
+
+\
+
+Table \@ref(tab:tab54) again compares the estimates for $x_t$ and $c_t$ for the different models by means of the coefficient of determination. The unanticipated outlier reduces the coefficient of determination both for trend and cycle, which is natural as the outlier is not captured by the model. All further conclusions from table \@ref(tab:tab54) are similar to those from table \@ref(tab:tab4). 
+
+<details><summary>Table \@ref(tab:tab54): Simulation with unanticipated outlier: Coefficient of determination from regressing true trend and cycle on their respective estimates from the Kalman smoother.</summary>
+```{r tab54, echo=FALSE}
+library(kableExtra)
+options(knitr.kable.NA = '')
+tab4 <- readRDS(file = "/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/R/code/MC/MC_5/tab4_rsq.RDS")
+colnames(tab4) <- c("$n$", "$r$", "$d$~0~", "$\\nu$~0~",
+                     "$R^2$~CSS~", "$R^2$~QML~", "$R^2$~ARMA~",
+                     "${R^2}^{I(1)}$~CSS~", "${R^2}^{I(1)}$~QML~",
+                     "$R^2$~CSS~", "$R^2$~QML~", "$R^2$~ARMA~",
+                     "${R^2}^{I(1)}$~CSS~", "${R^2}^{I(1)}$~QML~"
+                     )
+kbl(tab4, digits = c(0, 1, 2, rep(2, 20)),
+              row.names = FALSE, booktabs=T, align = "llllrrrrrrrrrrrrrrr",
+    caption = "") %>%
+    add_header_above(c(" " = 4, "Trend" = 5, "Cycle" = 5)) %>%
+    kable_paper("hover", full_width = T)
+```
+</details>
+
+\
+
+
+
+
+
+
+# References
+
+<div id="refs"></div>
+
