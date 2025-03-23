@@ -3,15 +3,18 @@ Finite sample properties
 
 For the fractional unobserved components model, this section examines
 the finite sample properties of the proposed estimation methods relative
-to popular competitors for the data-generating mechanism $$
+to popular competitors for the data-generating mechanism  
+$$
 y_t = d_t + x_t + c_t + u_t, \qquad \Delta_+^d x_t = \eta_t, \qquad c_t - b_1 c_{t-1} - b_{2}c_{t-2} = \epsilon_t,
 $$ where $d_t$ controls for deterministic terms, $u_t$ is an additional
 measurement error, $b_{1,0} = 1.6$, $b_{2,0} = -0.8$ reflect strong
-cyclical patterns, and $$
+cyclical patterns, and  
+$$
     \mathrm{Var}\begin{pmatrix} \eta_t \\ \epsilon_t\end{pmatrix} = Q.
 $$ The subsections below vary over $Q$, $d_t$, $u_t$. They consider
 sample sizes $n \in \{100, 200, 300\}$, integration order
-$d_0 \in \{0.75, 1.00, 1.75\}$, and variance ratios $$
+$d_0 \in \{0.75, 1.00, 1.75\}$, and variance ratios  
+$$
 \nu_0 \in \left\{1, \frac{n^{-1} \sum_{t=1}^{n}\sum_{j=0}^{t-1} \pi_j^2(-d_0)}{\sum_{j=0}^{\infty} a_j^2(\varphi_0)}  r^{-1}\right\}, \qquad r \in \left\{1, 10, 30\right\},
 $$ with $\varphi_0 = (b_{1,0}, b_{2,0})'$, and
 $a(L, \varphi_0) = \sum_{j=0}^{\infty} a_j(\varphi_0)L^j = (1 - b_{1,0}L - b_{2,0}L^2)^{-1}$.
@@ -70,12 +73,15 @@ Kalman smoother are reported.
 The first simulation considers the prototypical fractional UC model with
 no measurement error $u_t = 0$, no deterministic terms $d_t=0$, and
 diagonal covariance matrix $Q$. The resulting fractional UC model is
-thus $$
+thus  
+$$
 y_t = x_t + c_t, \qquad \Delta_+^d x_t = \eta_t, \qquad c_t - b_1 c_{t-1} - b_{2}c_{t-2} = \epsilon_t, \qquad Q = \begin{pmatrix}
             1 & 0 \\
             0 & \nu
         \end{pmatrix}.
-$$ For a better comparison of QML and CSS, the QML simulation assumes
+$$
+
+For a better comparison of QML and CSS, the QML simulation assumes
 $\sigma_{\eta, 0}^2 = 1$ known, so that optimization is conducted over
 $(d, \nu, b_1, b_2)'$ both for CSS and QML estimator.
 
@@ -12429,11 +12435,12 @@ ${R^2}^{I(1)}$<sub>QML</sub>
 
 The second simulation generalizes the prototypical fractional UC model
 to correlated innovations, allowing for a non-diagonal covariance matrix
-$Q$. The resulting fractional UC model is thus $$
-y_t = x_t + c_t, \qquad \Delta_+^d x_t = \eta_t, \qquad c_t - b_1 c_{t-1} - b_{2}c_{t-2} = \epsilon_t, \qquad Q = \begin{pmatrix}
+$Q$. The resulting fractional UC model is thus  
+$$
+y_t = x_t + c_t, \qquad \Delta_+^d x_t = \eta_t, \qquad c_t - b_1 c_{t-1} - b_{2}c_{t-2} = \epsilon_t, \qquad Q = \left( \begin{matrix}
             1 & \rho \sqrt{\nu} \\
             \rho\sqrt{\nu} & \nu
-        \end{pmatrix},
+        \end{matrix} \right),
 $$ where $\rho = -0.8$ is set to mimic strong but not perfect
 correlation. Optimization is now conducted over
 $(d, \nu, \nu_2, b_1, b_2)'$ for the CSS estimator, and

@@ -10,21 +10,21 @@ bibliography: literatur_merged.bib
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-For the fractional unobserved components model, this section examines the finite sample properties of the proposed estimation methods relative to popular competitors for the data-generating mechanism
+For the fractional unobserved components model, this section examines the finite sample properties of the proposed estimation methods relative to popular competitors for the data-generating mechanism \
 $$
 y_t = d_t + x_t + c_t + u_t, \qquad \Delta_+^d x_t = \eta_t, \qquad c_t - b_1 c_{t-1} - b_{2}c_{t-2} = \epsilon_t,
 $$
-where $d_t$ controls for deterministic terms, $u_t$ is an additional measurement error, $b_{1,0} = 1.6$, $b_{2,0} = -0.8$ reflect strong cyclical patterns, and 
+where $d_t$ controls for deterministic terms, $u_t$ is an additional measurement error, $b_{1,0} = 1.6$, $b_{2,0} = -0.8$ reflect strong cyclical patterns, and \
 $$
     \mathrm{Var}\begin{pmatrix} \eta_t \\ \epsilon_t\end{pmatrix} = Q.
 $$
-The subsections below vary over $Q$, $d_t$, $u_t$. They consider sample sizes $n \in \{100, 200, 300\}$, integration order $d_0 \in \{0.75, 1.00, 1.75\}$, and variance ratios 
+The subsections below vary over $Q$, $d_t$, $u_t$. They consider sample sizes $n \in \{100, 200, 300\}$, integration order $d_0 \in \{0.75, 1.00, 1.75\}$, and variance ratios \
 $$
 \nu_0 \in \left\{1, \frac{n^{-1} \sum_{t=1}^{n}\sum_{j=0}^{t-1} \pi_j^2(-d_0)}{\sum_{j=0}^{\infty} a_j^2(\varphi_0)}  r^{-1}\right\}, \qquad r \in \left\{1, 10, 30\right\},
 $$
 with $\varphi_0 = (b_{1,0}, b_{2,0})'$, and $a(L, \varphi_0) = \sum_{j=0}^{\infty} a_j(\varphi_0)L^j = (1 - b_{1,0}L - b_{2,0}L^2)^{-1}$. While the choices for $n$ and $d_0$ cover empirically relevant sample sizes and integration orders in macroeconomics and finance and allow for a comparison with the $I(1)$ UC model when $d_0=1$, the choice for $\nu_0$ is justified as follows: Trivially, setting $\nu_0 = \sigma_{\epsilon, 0}^2/\sigma_{\eta, 0}^2 = 1$ assigns equal variation to long- and short-run innovations. By its non-stationary nature, the trend then dominates the overall variance of $y_t$, i.e.\ $\mathrm{Var}(x_t)/\mathrm{Var}(c_t) = O(t^{2d_0 - 1})$, which constitutes a favorable scenario for estimating $d_0$. At contrast, letting $\nu_0$ depend on $d_0$ and $\varphi_0$ controls for the diverging variance ratio: The numerator is the mean variance of the trend component (under $\sigma_{\eta, 0}^2 = 1$ as in the simulations), hence $\mathrm{Var}(c_t) = \mathrm{Var}(a(L, \varphi_0) \epsilon_t) = \nu \sum_{j=0}^{\infty} a_j^2(\varphi_0) = r^{-1} n^{-1} \sum_{t=1}^{n}\sum_{j=0}^{t-1} \pi_j^2(-d_0)$ is proportional to the mean variance of $x_t$, and $n^{-1} \sum_{t=1}^{n} \mathrm{Var}(x_t)/ \mathrm{Var}(c_t) = r$. This fixes the variance ratio of $x_t$ and $c_t$ (instead of $\sigma^2_{\epsilon, 0}/\sigma_{\eta, 0}^2$), and the lower $r$, the weaker the relative contribution of the trend to the overall variation, and the less favorable the scenario for estimating $d_0$ and $x_t$.
 
-Each Monte Carlo simulation consists of $1000$ replications. For the QML estimator, the trend is initialized with variance zero (as implied by the type II definition of long memory), whereas the cycle is initialized with its long-run variance. Once the prediction error variance satisfies
+Each Monte Carlo simulation consists of $1000$ replications. For the QML estimator, the trend is initialized with variance zero (as implied by the type II definition of long memory), whereas the cycle is initialized with its long-run variance. Once the prediction error variance satisfies 
 $\left| \frac{\mathrm{Var}_\theta(v_{t+1}(\theta)|y_1,...,y_t)-\mathrm{Var}_\theta(v_{t}(\theta)|y_1,...,y_{t-1})}{\mathrm{Var}_\theta(v_{t}(\theta)|y_1,...,y_{t-1})} \right| < 0.01,$ 
 the optimization switches to the steady-state Kalman filter, which assumes the prediction error variance to be constant from that point on. Both CSS and QML estimator are initialized by first evaluating their objective function at a large grid for the model parameters, and the grid point referring to the lowest value of the CSS objective function or the lowest negative likelihood is chosen as the starting point for numerical optimization.  As a benchmark, the exact local Whittle estimator of @ShiPhi2005 is introduced, using $m = \lfloor n^{j} \rfloor$ Fourier frequencies, $j \in \{.50, .60, .70\}$. Moreover, CSS and QML estimation results from the $I(1)$ UC model (setting $d=1$) are reported, as well as QML estimates from the  approximate fractional UC model of @HarWei2018a. The latter approximates the fractional differencing operator by an ARMA($3$, $3$) polynomial, which yields a low-dimensional state space model so that Kalman filter and smoother remain computationally feasible. All benchmarks are initialized analogously to the fractional UC model, and starting values are chosen analogously by evaluating the objective functions at the same grid (but setting $d=1$ for the integer-integrated models).
 Parameter estimates are compared by the root mean squared error (RMSE),
@@ -32,13 +32,14 @@ as well as by the bias. To judge trend and cycle estimates, the coefficients of 
 
 # Uncorrelated innovations {#sec:baseline}
 
-The first simulation considers the prototypical fractional UC model with no measurement error $u_t = 0$, no deterministic terms $d_t=0$, and diagonal covariance matrix $Q$. The resulting fractional UC model is thus
+The first simulation considers the prototypical fractional UC model with no measurement error $u_t = 0$, no deterministic terms $d_t=0$, and diagonal covariance matrix $Q$. The resulting fractional UC model is thus \
 $$
 y_t = x_t + c_t, \qquad \Delta_+^d x_t = \eta_t, \qquad c_t - b_1 c_{t-1} - b_{2}c_{t-2} = \epsilon_t, \qquad Q = \begin{pmatrix}
             1 & 0 \\
             0 & \nu
         \end{pmatrix}.
-$$
+$$ 
+
 For a better comparison of QML and CSS, the QML simulation assumes $\sigma_{\eta, 0}^2 = 1$ known, so that optimization is conducted over $(d, \nu, b_1, b_2)'$ both for CSS and QML estimator. 
 
 Table \@ref(tab:tab1) shows the RMSE and the bias for the estimated integration orders. As can be expected, bias and RMSE decrease both in $n$ and $r$, and are significantly smaller as compared to the nonparametric Whittle estimators. The difference is particularly striking when the signal of the trend is drowned by the cycle (i.e.\ $r$ small / $\nu_0$ large), which biases the Whittle estimates towards zero, whereas the estimates for the fractional UC model are hardly affected. Noticeably, for the fractional UC model QML is slightly superior to CSS, and using ARMA approximations as suggested by @HarWei2018a yields estimates that are close to the exact fractional UC models in terms of RMSE and bias.
@@ -142,12 +143,12 @@ kbl(tab4, digits = c(0, 1, 2, rep(2, 20)),
 
 # Correlated innovations
 
-The second simulation generalizes the prototypical fractional UC model to correlated innovations, allowing for a non-diagonal covariance matrix $Q$. The resulting fractional UC model is thus
+The second simulation generalizes the prototypical fractional UC model to correlated innovations, allowing for a non-diagonal covariance matrix $Q$. The resulting fractional UC model is thus \
 $$
-y_t = x_t + c_t, \qquad \Delta_+^d x_t = \eta_t, \qquad c_t - b_1 c_{t-1} - b_{2}c_{t-2} = \epsilon_t, \qquad Q = \begin{pmatrix}
+y_t = x_t + c_t, \qquad \Delta_+^d x_t = \eta_t, \qquad c_t - b_1 c_{t-1} - b_{2}c_{t-2} = \epsilon_t, \qquad Q = \left( \begin{matrix}
             1 & \rho \sqrt{\nu} \\
             \rho\sqrt{\nu} & \nu
-        \end{pmatrix},
+        \end{matrix} \right),
 $$
 where $\rho = -0.8$ is set to mimic strong but not perfect correlation. Optimization is now conducted over $(d, \nu, \nu_2, b_1, b_2)'$ for the CSS estimator, and $(d, \sigma_{\eta}^2, \sigma_{\eta \epsilon}, \sigma_\epsilon^2, b_1, b_2)'$ for the QML estimator of the fractional UC model, however in both cases bias and RMSE are reported for $\hat \rho = \widehat{\mathrm{Corr}(\eta_t, \epsilon_t)}$ for comprehensibility. 
 
