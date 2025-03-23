@@ -1,7 +1,8 @@
 ---
 title: "Finite sample properties"
 author: ""
-output: bookdown::html_document2
+output: bookdown::github_document2
+always_allow_html: true
 bibliography: literatur_merged.bib  
 ---
 
@@ -18,11 +19,10 @@ $$
     \mathrm{Var}\begin{pmatrix} \eta_t \\ \epsilon_t\end{pmatrix} = Q.
 $$
 The subsections below vary over $Q$, $d_t$, $u_t$. They consider sample sizes $n \in \{100, 200, 300\}$, integration order $d_0 \in \{0.75, 1.00, 1.75\}$, and variance ratios 
-\begin{equation} 
+$$
 \nu_0 \in \left\{1, \frac{n^{-1} \sum_{t=1}^{n}\sum_{j=0}^{t-1} \pi_j^2(-d_0)}{\sum_{j=0}^{\infty} a_j^2(\varphi_0)}  r^{-1}\right\}, \qquad r \in \left\{1, 10, 30\right\},
- (\#eq:nuMC)
-\end{equation}
-with $\varphi_0 = (b_{1,0}, b_{2,0})'$, and $a(L, \varphi_0) = \sum_{j=0}^{\infty} a_j(\varphi_0)L^j = (1 - b_{1,0}L - b_{2,0}L^2)^{-1}$. While the choices for $n$ and $d_0$ cover empirically relevant sample sizes and integration orders in macroeconomics and finance and allow for a comparison with the $I(1)$ UC model when $d_0=1$, the choice for $\nu_0$ is justified as follows: Trivially, setting $\nu_0 = \sigma_{\epsilon, 0}^2/\sigma_{\eta, 0}^2 = 1$ assigns equal variation to long- and short-run innovations. By its non-stationary nature, the trend then dominates the overall variance of $y_t$, i.e.\ $\mathrm{Var}(x_t)/\mathrm{Var}(c_t) = O(t^{2d_0 - 1})$, which constitutes a favorable scenario for estimating $d_0$. At contrast, letting $\nu_0$ depend on $d_0$ and $\varphi_0$ controls for the diverging variance ratio: The numerator in \@ref(eq:nuMC) is the mean variance of the trend component (under $\sigma_{\eta, 0}^2 = 1$ as in the simulations), hence $\mathrm{Var}(c_t) = \mathrm{Var}(a(L, \varphi_0) \epsilon_t) = \nu \sum_{j=0}^{\infty} a_j^2(\varphi_0) = r^{-1} n^{-1} \sum_{t=1}^{n}\sum_{j=0}^{t-1} \pi_j^2(-d_0)$ is proportional to the mean variance of $x_t$, and $n^{-1} \sum_{t=1}^{n} \mathrm{Var}(x_t)/ \mathrm{Var}(c_t) = r$. This fixes the variance ratio of $x_t$ and $c_t$ (instead of $\sigma^2_{\epsilon, 0}/\sigma_{\eta, 0}^2$), and the lower $r$, the weaker the relative contribution of the trend to the overall variation, and the less favorable the scenario for estimating $d_0$ and $x_t$.
+$$
+with $\varphi_0 = (b_{1,0}, b_{2,0})'$, and $a(L, \varphi_0) = \sum_{j=0}^{\infty} a_j(\varphi_0)L^j = (1 - b_{1,0}L - b_{2,0}L^2)^{-1}$. While the choices for $n$ and $d_0$ cover empirically relevant sample sizes and integration orders in macroeconomics and finance and allow for a comparison with the $I(1)$ UC model when $d_0=1$, the choice for $\nu_0$ is justified as follows: Trivially, setting $\nu_0 = \sigma_{\epsilon, 0}^2/\sigma_{\eta, 0}^2 = 1$ assigns equal variation to long- and short-run innovations. By its non-stationary nature, the trend then dominates the overall variance of $y_t$, i.e.\ $\mathrm{Var}(x_t)/\mathrm{Var}(c_t) = O(t^{2d_0 - 1})$, which constitutes a favorable scenario for estimating $d_0$. At contrast, letting $\nu_0$ depend on $d_0$ and $\varphi_0$ controls for the diverging variance ratio: The numerator is the mean variance of the trend component (under $\sigma_{\eta, 0}^2 = 1$ as in the simulations), hence $\mathrm{Var}(c_t) = \mathrm{Var}(a(L, \varphi_0) \epsilon_t) = \nu \sum_{j=0}^{\infty} a_j^2(\varphi_0) = r^{-1} n^{-1} \sum_{t=1}^{n}\sum_{j=0}^{t-1} \pi_j^2(-d_0)$ is proportional to the mean variance of $x_t$, and $n^{-1} \sum_{t=1}^{n} \mathrm{Var}(x_t)/ \mathrm{Var}(c_t) = r$. This fixes the variance ratio of $x_t$ and $c_t$ (instead of $\sigma^2_{\epsilon, 0}/\sigma_{\eta, 0}^2$), and the lower $r$, the weaker the relative contribution of the trend to the overall variation, and the less favorable the scenario for estimating $d_0$ and $x_t$.
 
 Each Monte Carlo simulation consists of $1000$ replications. For the QML estimator, the trend is initialized with variance zero (as implied by the type II definition of long memory), whereas the cycle is initialized with its long-run variance. Once the prediction error variance satisfies
 $\left| \frac{\mathrm{Var}_\theta(v_{t+1}(\theta)|y_1,...,y_t)-\mathrm{Var}_\theta(v_{t}(\theta)|y_1,...,y_{t-1})}{\mathrm{Var}_\theta(v_{t}(\theta)|y_1,...,y_{t-1})} \right| < 0.01,$ 
