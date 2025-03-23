@@ -10,13 +10,13 @@ bibliography: literatur_merged.bib
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-For the fractional unobserved components model, this section examines the finite sample properties of the proposed estimation methods relative to popular competitors for the data-generating mechanism \
+For the fractional unobserved components model, this section examines the finite sample properties of the proposed estimation methods relative to popular competitors for the data-generating mechanism\
 $$
 y_t = d_t + x_t + c_t + u_t, \qquad \Delta_+^d x_t = \eta_t, \qquad c_t - b_1 c_{t-1} - b_{2}c_{t-2} = \epsilon_t,
 $$
 where $d_t$ controls for deterministic terms, $u_t$ is an additional measurement error, $b_{1,0} = 1.6$, $b_{2,0} = -0.8$ reflect strong cyclical patterns, and \
 $$
-    \mathrm{Var}\begin{pmatrix} \eta_t \\ \epsilon_t\end{pmatrix} = Q.
+    \mathrm{Var} \left(\begin{matrix} \eta_t \\ \epsilon_t\end{matrix} \right) = Q.
 $$
 The subsections below vary over $Q$, $d_t$, $u_t$. They consider sample sizes $n \in \{100, 200, 300\}$, integration order $d_0 \in \{0.75, 1.00, 1.75\}$, and variance ratios \
 $$
@@ -143,7 +143,7 @@ kbl(tab4, digits = c(0, 1, 2, rep(2, 20)),
 
 # Correlated innovations
 
-The second simulation generalizes the prototypical fractional UC model to correlated innovations, allowing for a non-diagonal covariance matrix $Q$. The resulting fractional UC model is thus \
+The second simulation generalizes the prototypical fractional UC model to correlated innovations, allowing for a non-diagonal covariance matrix $Q$. The resulting fractional UC model is thus\
 $$
 y_t = x_t + c_t, \qquad \Delta_+^d x_t = \eta_t, \qquad c_t - b_1 c_{t-1} - b_{2}c_{t-2} = \epsilon_t, \qquad Q = \left( \begin{matrix}
             1 & \rho \sqrt{\nu} \\

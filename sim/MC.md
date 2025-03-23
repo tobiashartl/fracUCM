@@ -10,7 +10,7 @@ $$ where $d_t$ controls for deterministic terms, $u_t$ is an additional
 measurement error, $b_{1,0} = 1.6$, $b_{2,0} = -0.8$ reflect strong
 cyclical patterns, and  
 $$
-    \mathrm{Var}\begin{pmatrix} \eta_t \\ \epsilon_t\end{pmatrix} = Q.
+    \mathrm{Var} \left(\begin{matrix} \eta_t \\ \epsilon_t\end{matrix} \right) = Q.
 $$ The subsections below vary over $Q$, $d_t$, $u_t$. They consider
 sample sizes $n \in \{100, 200, 300\}$, integration order
 $d_0 \in \{0.75, 1.00, 1.75\}$, and variance ratios  
