@@ -156,7 +156,7 @@ fUC_opt_ML_ARMA_approx <- function(theta, y, nulim = c(0.05, 10), quiet = TRUE, 
     
     
     if (diffuse) {
-        A <- toComp(-theta[5:(4+pq[1])])$CompMat
+        A <- toComp(-ar)$CompMat
         
         sigma_sq <- Q[2, 2]
         P1A <- matrix(solve(diag(pq[1]^2) - (A %x% A)) %*% c(sigma_sq, 

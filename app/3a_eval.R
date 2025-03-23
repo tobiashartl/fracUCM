@@ -69,14 +69,15 @@ EST <- rbind(EST, cbind(add, NA))
 rownames(EST) <- c("d", "Q11", "Q21", "Q22", paste("ar_", 1:p, sep=""),
                    "nu_1", "nu_2", "rho", "ll", "CSS", "AIC", "BIC")
 colnames(EST)<- c("par", "se")
-saveRDS(EST, file = "./app/fUC_ML_Results.RDS")
-
+#saveRDS(EST, file = "./app/fUC_ML_Results.RDS")
+EST <- readRDS(file = "./app/fUC_ML_Results.RDS")
 
 
 # =============================================================================
 # Trend-cycle decomposition
 # =============================================================================
 
+data.plot <- readRDS(file = "./app/fUC_ML_TC.RDS")
 
 plot(y, type="l")
 lines(det.trend, col="2")
@@ -604,5 +605,295 @@ gg2 <- ggplot(data.plot, aes(x = time, y = cycle)) +
     theme_classic()
 #gg2
 
+
+
+
+# read the tables for the ONI
+
+library(readr)
+oni_new <- read_table2("app/oni_new.txt", 
+                       col_names = FALSE)
+ONI_new <- data.frame(
+    date = seq(as.Date("1950-01-01"), as.Date("2024-12-01"),
+               by = "month"
+    ),
+    ONI = c(t(as.matrix(oni_new[,-1])))
+)
+ONI_new <- ONI_new %>% add_row(date = seq(as.Date("1850-01-01"), 
+                                          as.Date("1949-12-01"),
+                                          by = "month"),
+                               ONI = NA) %>%
+    arrange(date)
+
+
+
+ONI_new <- ONI_new %>% 
+    filter(date <= as.Date("2023-07-01"))
+data.plot$ONI <- ONI_new$ONI
+
+summary(lm(data.plot$cycle ~ data.plot$ONI))
+
+coef <- 1/0.077282
+
+gg2 <- ggplot(data.plot, aes(x = time, y = cycle)) +
+    # la nina
+    geom_rect(xmin=as.Date("1871-06-01"), xmax=as.Date("1871-07-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1871-12-01"), xmax=as.Date("1873-08-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1874-01-01"), xmax=as.Date("1876-08-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1878-10-01"), xmax=as.Date("1879-02-28"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1879-05-01"), xmax=as.Date("1879-08-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1879-10-01"), xmax=as.Date("1880-06-30"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1881-08-01"), xmax=as.Date("1881-09-30"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1881-12-01"), xmax=as.Date("1882-01-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1882-03-01"), xmax=as.Date("1882-07-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1883-01-01"), xmax=as.Date("1883-06-30"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1886-05-01"), xmax=as.Date("1887-06-30"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1889-07-01"), xmax=as.Date("1891-01-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1892-03-01"), xmax=as.Date("1895-06-30"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1898-02-01"), xmax=as.Date("1898-05-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1898-08-01"), xmax=as.Date("1898-10-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1899-01-01"), xmax=as.Date("1899-02-28"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1901-11-01"), xmax=as.Date("1901-11-30"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1903-08-01"), xmax=as.Date("1903-08-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1903-11-01"), xmax=as.Date("1904-05-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1906-09-01"), xmax=as.Date("1907-06-30"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1908-03-01"), xmax=as.Date("1911-07-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1912-07-01"), xmax=as.Date("1912-08-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1913-04-01"), xmax=as.Date("1913-05-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1915-11-01"), xmax=as.Date("1915-12-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1916-02-01"), xmax=as.Date("1918-05-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1921-03-01"), xmax=as.Date("1921-10-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1922-02-01"), xmax=as.Date("1922-02-28"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1922-12-01"), xmax=as.Date("1923-02-28"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1924-05-01"), xmax=as.Date("1925-02-28"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1933-06-01"), xmax=as.Date("1934-04-30"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1938-04-01"), xmax=as.Date("1939-04-30"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1942-07-01"), xmax=as.Date("1943-03-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1945-08-01"), xmax=as.Date("1945-08-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1947-09-01"), xmax=as.Date("1947-10-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    # la nina new
+    geom_rect(xmin=as.Date("1949-08-01"), xmax=as.Date("1950-07-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1950-11-01"), xmax=as.Date("1951-02-28"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1954-05-01"), xmax=as.Date("1954-05-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1954-07-01"), xmax=as.Date("1956-08-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1964-04-01"), xmax=as.Date("1965-01-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1968-01-01"), xmax=as.Date("1968-03-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1970-07-01"), xmax=as.Date("1972-01-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1973-05-01"), xmax=as.Date("1974-07-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1974-10-01"), xmax=as.Date("1976-03-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1981-02-01"), xmax=as.Date("1982-02-28"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1983-10-01"), xmax=as.Date("1984-01-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1984-05-01"), xmax=as.Date("1984-05-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1984-10-01"), xmax=as.Date("1985-06-30"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1988-05-01"), xmax=as.Date("1989-05-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1995-08-01"), xmax=as.Date("1996-03-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1997-01-01"), xmax=as.Date("1997-01-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("1998-07-01"), xmax=as.Date("2001-02-28"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("2005-11-01"), xmax=as.Date("2006-03-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("2007-07-01"), xmax=as.Date("2008-06-30"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("2008-11-01"), xmax=as.Date("2009-03-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("2010-06-01"), xmax=as.Date("2011-05-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("2011-08-01"), xmax=as.Date("2012-03-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("2016-08-01"), xmax=as.Date("2016-12-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("2017-10-01"), xmax=as.Date("2018-04-30"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("2020-08-01"), xmax=as.Date("2021-04-30"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+    geom_rect(xmin=as.Date("2021-09-01"), xmax=as.Date("2023-01-31"),
+              ymin=-Inf, ymax=Inf, fill="#d1e5f0", alpha=0.15, col="#d1e5f0") +
+
+    # el nino hist
+    geom_rect(xmin=as.Date("1877-06-01"), xmax=as.Date("1878-06-30"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1884-05-01"), xmax=as.Date("1884-06-30"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1884-09-01"), xmax=as.Date("1884-09-30"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1885-01-01"), xmax=as.Date("1885-02-28"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1885-05-01"), xmax=as.Date("1885-05-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1885-09-01"), xmax=as.Date("1885-12-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1888-03-01"), xmax=as.Date("1889-04-30"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1896-06-01"), xmax=as.Date("1897-05-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1899-08-01"), xmax=as.Date("1900-08-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1901-01-01"), xmax=as.Date("1901-01-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1902-05-01"), xmax=as.Date("1903-04-30"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1904-08-01"), xmax=as.Date("1906-02-28"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1911-10-01"), xmax=as.Date("1912-04-30"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1913-09-01"), xmax=as.Date("1913-09-30"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1913-11-01"), xmax=as.Date("1914-04-30"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1914-07-01"), xmax=as.Date("1915-07-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1918-07-01"), xmax=as.Date("1919-10-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1920-02-01"), xmax=as.Date("1920-04-30"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1923-08-01"), xmax=as.Date("1924-01-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1925-08-01"), xmax=as.Date("1926-08-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1929-07-01"), xmax=as.Date("1929-10-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1930-02-01"), xmax=as.Date("1931-06-30"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1932-04-01"), xmax=as.Date("1932-08-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1939-08-01"), xmax=as.Date("1939-10-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1940-01-01"), xmax=as.Date("1942-04-30"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1948-03-01"), xmax=as.Date("1948-04-30"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    # el nino
+    geom_rect(xmin=as.Date("1951-06-01"), xmax=as.Date("1952-01-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1953-02-01"), xmax=as.Date("1954-01-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1957-04-01"), xmax=as.Date("1958-07-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1958-11-01"), xmax=as.Date("1959-03-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1963-06-01"), xmax=as.Date("1964-02-28"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1965-06-01"), xmax=as.Date("1966-04-30"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1968-07-01"), xmax=as.Date("1968-08-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1968-10-01"), xmax=as.Date("1969-05-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1969-08-01"), xmax=as.Date("1970-01-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1972-05-01"), xmax=as.Date("1973-03-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1976-09-01"), xmax=as.Date("1977-02-28"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1977-09-01"), xmax=as.Date("1978-01-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1979-11-01"), xmax=as.Date("1980-01-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1982-05-01"), xmax=as.Date("1983-06-30"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1986-09-01"), xmax=as.Date("1988-02-28"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1991-06-01"), xmax=as.Date("1992-06-30"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1993-04-01"), xmax=as.Date("1993-06-30"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1994-09-01"), xmax=as.Date("1995-03-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("1997-05-01"), xmax=as.Date("1998-04-30"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("2002-06-01"), xmax=as.Date("2003-02-28"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("2004-08-01"), xmax=as.Date("2005-02-28"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("2006-09-01"), xmax=as.Date("2007-01-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("2009-08-01"), xmax=as.Date("2010-03-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("2014-11-01"), xmax=as.Date("2015-01-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("2015-03-01"), xmax=as.Date("2016-04-30"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("2018-10-01"), xmax=as.Date("2019-05-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("2019-11-01"), xmax=as.Date("2019-12-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    geom_rect(xmin=as.Date("2023-06-01"), xmax=as.Date("2023-07-31"),
+              ymin=-Inf, ymax=Inf, fill="#fddbc7", alpha=0.15, col="#fddbc7") +
+    labs(x = "time", y="")+
+    geom_line(color="black") + 
+    ggtitle(bquote("Cyclical temperature anomalies")) + 
+    #    geom_line(mapping = aes(x = time, y = tau), color = cbbPalette[1], linetype = "twodash") +
+    geom_line( aes(y=ONI / coef),
+               color = cbbPalette[1], linetype = "twodash") + # Divide by 10 to get the same range than the temperature
+    
+    scale_y_continuous(
+        
+        # Features of the first axis
+        name = "Temperature",
+        
+        # Add a second axis and specify its features
+        sec.axis = sec_axis(~.*coef, name="Oceanic Niño Index")
+    )+
+    theme_classic() 
+#gg2
+
+
+pdf(file = paste("/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/tex/figures/SST_cycle_new.pdf", sep=""), width = 9, height = 4)
+gg2
+dev.off()
+
+
+ggsave("/Users/tobias/Dokumente/Projekte/Filtering unknown persistence/tex/figures/SST_cycle_new.png", gg2, 
+       width = 9, height = 4, dpi = 300)
 
 

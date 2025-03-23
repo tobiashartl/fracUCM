@@ -75,12 +75,12 @@ for ( i in 1:NROW(setups)){
     y <- x + c
     
     nu.grid <- (c(0.01, 1, 100, 1000))
-    ar.1.grid <- c(-1.8,  -1.6, -1.4)
-    ar2.grid  <- c(0.6,  0.8,  1)
+    ar.1.grid <- -c(-1.8,  -1.6, -1.4)
+    ar2.grid  <- -c(0.6,  0.8,  1)
     corr_grid <- c(tcrossprod(-c(0.7, 0.8, 0.9), sqrt(nu.grid)))
     
     gr.start <- expand.grid(nu.grid, corr_grid, ar.1.grid, ar2.grid) %>% as.matrix()
-    gr.start <- gr.start[sapply(1:nrow(gr.start), function(i) toComp(-c(gr.start[i, 3:4]))$stable) ,]
+    gr.start <- gr.start[sapply(1:nrow(gr.start), function(i) toComp(c(gr.start[i, 3:4]))$stable) ,]
     
     
     optfn <- function(n, y, x){
@@ -102,16 +102,16 @@ for ( i in 1:NROW(setups)){
             par <- est$par
             nu  <- matrix(c(1, est$par[2], est$par[2], est$par[1]), 2, 2)
             ar  <- par[-(1:2)]
-            KS <- fUC_smooth(y, 1, nu, ar = -ar, corr=TRUE)
-            KF <- fUC_comp(y, 1, nu, ar=-ar, corr=TRUE)
+            KS <- NA
+            KF <- NA
             
             # Calculate Rsq, etc
-            SSR <- mean((x - KS$x)^2)
-            SST <- mean((x - mean(x))^2)
-            Rsq <- summary(lm(x ~ KS$x))$r.squared
+            SSR <- NA
+            SST <- NA
+            Rsq <- NA
             
             # Return results
-            results <- c(nu[2,2], nu[1,2], ar, SSR, Rsq)
+            results <- c(nu[2,2], nu[1,2], -ar, SSR, Rsq)
             names(results) <- c("sigma_eps", "corr", "ar_1", "ar_2","SSR", "Rsq")
             
             

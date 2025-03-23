@@ -193,6 +193,12 @@ for(i in 1:nrow(setups)){
     cat("Iteration ", i, "\n")
 }
 
+calcRSQ <- function(x.true, x.est){
+    Rsq <- mean(sapply(1:ncol(x.true), function(j) tryCatch(summary(lm(x.true[, j] ~ x.est[,j]))$r.squared,
+                                                            error = function(e) return(NA))), na.rm = TRUE)
+}
+
+rsq <- calcRSQ(x, X.res[[1]])
 save(X.res, C.res, results.list, X.true, C.true, 
      file = "./MC/MC_2/CSS_INTEGER/results_i1.RData")
 

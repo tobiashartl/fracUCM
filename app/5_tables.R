@@ -92,6 +92,34 @@ cbbPalette <- wesanderson::wes_palette("Darjeeling1", n=5)
 # nino periods: 1950 onwards: https://origin.cpc.ncep.noaa.gov/products/analysis_monitoring/ensostuff/ONI_v5.php
 # before: 
 
+
+library(readr)
+oni_new <- read_table2("app/oni_new.txt", 
+                       col_names = FALSE)
+ONI_new <- data.frame(
+    date = seq(as.Date("1950-01-01"), as.Date("2024-12-01"),
+               by = "month"
+    ),
+    ONI = c(t(as.matrix(oni_new[,-1])))
+)
+ONI_new <- ONI_new %>% add_row(date = seq(as.Date("1850-01-01"), 
+                                          as.Date("1949-12-01"),
+                                          by = "month"),
+                               ONI = NA) %>%
+    arrange(date)
+
+
+
+ONI_new <- ONI_new %>% 
+    filter(date <= as.Date("2023-07-01"))
+data.plot$ONI <- ONI_new$ONI
+
+summary(lm(data.plot$cycle.id ~ data.plot$ONI))
+
+coef <- 1/0.077282
+
+
+
 library(ggplot2)
 gg1 <- ggplot(data.plot, aes(x = time, y = y)) +
     # la nina
@@ -577,6 +605,7 @@ gg2 <- ggplot(data.plot, aes(x = time, y = cycle.i1 - cycle.id)) +
     labs(x = "(b)", y="")+
     geom_line(color='black', linetype = "solid") + 
     ylim(-.25, .2) + 
+    
     #ggtitle(bquote("Cyclical temperature anomalies")) + 
     #geom_line(mapping = aes(x = time, y = cycle.i1), color = cbbPalette[2], linetype = "longdash") +
     #geom_line(mapping = aes(x = time, y = cycle.i2), color = cbbPalette[3], linetype = "F1") +
@@ -584,6 +613,12 @@ gg2 <- ggplot(data.plot, aes(x = time, y = cycle.i1 - cycle.id)) +
     
     #    geom_line(mapping = aes(x = time, y = tau), color = cbbPalette[1], linetype = "twodash") +
     theme_classic()
+
+
+
+
+
+
 #gg1
 gg3 <- ggplot(data.plot, aes(x = time, y = cycle.i2 - cycle.id)) +
     # la nina

@@ -20,7 +20,7 @@ UC_opt_ML <- function(theta, y, nulim = c(0.05, 10), quiet = TRUE, approx = TRUE
         
         Ht <- matrix(0, 1, 1)
         
-        if(length(theta)>2){
+        if(length(theta)>=2){
             if(pq[1]>0){
                 ar <- theta[2:(1+pq[1])]
             }else{
@@ -180,7 +180,7 @@ UC_opt_ML <- function(theta, y, nulim = c(0.05, 10), quiet = TRUE, approx = TRUE
     
     
     if (diffuse) {
-        A <- toComp(-theta[3:(2+pq[1])])$CompMat
+        A <- toComp(-ar)$CompMat
         
         sigma_sq <- Q[2, 2]
         P1A <- matrix(solve(diag(pq[1]^2) - (A %x% A)) %*% c(sigma_sq, 
@@ -215,13 +215,7 @@ UC_opt_ML <- function(theta, y, nulim = c(0.05, 10), quiet = TRUE, approx = TRUE
         mu <- summary(regmod)$coefficients[,1]
         v  <-  c(rep(NA, START-1), v[-(1:(START-1))] - v2[-(1:(START-1)), ] %*% matrix(mu, nrow = 1))
     }else{
-        v2 <- rep(0, length(y))
-        
-        
-        
-        regmod <- lm(v[-(1:(START-1))] ~ -1+v2[-(1:(START-1))])
-        mu <- summary(regmod)$coefficients[,1]
-        v  <-  c(rep(NA, START-1), v[-(1:(START-1))] - v2[-(1:(START-1)), ] %*% matrix(mu, nrow = 1))
+        v  <-  c(rep(NA, START-1), v[-(1:(START-1))] )
     }
     if(return.det) return(mu)
     
@@ -260,7 +254,7 @@ UC_i2_opt_ML <- function(theta, y, nulim = c(0.05, 10), quiet = TRUE, approx = T
         
         Ht <- matrix(0, 1, 1)
         
-        if(length(theta)>2){
+        if(length(theta)>=2){
             if(pq[1]>0){
                 ar <- theta[2:(1+pq[1])]
             }else{
@@ -426,7 +420,7 @@ UC_i2_opt_ML <- function(theta, y, nulim = c(0.05, 10), quiet = TRUE, approx = T
     if (diffuse) {
         sigma_sq <- Q[2, 2]
         if(pq[1] > 0){ 
-            A <- toComp(-theta[3:(2+pq[1])])$CompMat
+            A <- toComp(-ar)$CompMat
             P1A <- matrix(solve(diag(pq[1]^2) - (A %x% A)) %*% c(sigma_sq, 
                                                                  rep(0, pq[1]^2 - 1)), pq[1], pq[1])
         }else{
